@@ -19,9 +19,9 @@ class API {
     getCalendarEvents = () => {
         return this.apiCalendar.listEvents({
             timeMin: new Date(2024, 0, 1).toISOString(),
-            timeMax: new Date(2024, 12, 31).toISOString(),
+            timeMax: new Date(2024, 11, 31).toISOString(),
             showDeleted: false,
-            maxResults: 30,
+            maxResults: 1000,
             orderBy: "updated",
         }).then((response: any) => response.result.items);
     };

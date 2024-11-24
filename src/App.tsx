@@ -1,5 +1,6 @@
 import "./App.css";
 import CalendarGrid from "./CalendarGrid";
+import { CalendarGrid2 } from "./CalendarGrid2";
 import { api } from "./api"; // Assuming you have an API module
 import React, { useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
@@ -68,21 +69,11 @@ function App() {
             <button onClick={fetchCalendarEvents}>
               Get Events
             </button>
-            {calendarEvents.length > 0 && <CalendarGrid calendarEvents={calendarEvents} />}
-            {calendarEvents.length > 0 ? (
-              <div className="events-list">
-                {calendarEvents.map((event) => (
-                  <div key={event.id} className="event-item">
-                    <h3>{event.summary}</h3>
-                    <p>{new Date(event.start.dateTime || event.start.date || '').toLocaleString()}</p>
-                    <p>{new Date(event.end.dateTime || event.end.date || '').toLocaleString()}</p>
-                    <p>Category: {event.category}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p>No events available.</p>
-            )}
+            <div>
+              Calendar Events Count: {calendarEvents.length}
+            </div>
+            {calendarEvents.length > 0 && <CalendarGrid2 calendarEvents={calendarEvents} />}
+
           </>
         )}
       </div>
