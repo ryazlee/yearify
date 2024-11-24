@@ -1,31 +1,16 @@
 import "./App.css";
-import CalendarGrid from "./CalendarGrid";
 import { CalendarGrid2 } from "./CalendarGrid2";
 import { api } from "./api"; // Assuming you have an API module
-import React, { useState } from "react";
+import { useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { createTheme } from "@mui/material/styles"; // Optional, only if you want to customize the theme
+import { AuthButton } from "./AuthButton";
+import { CalendarEvent } from "./types";
 
 
-
-// Event type definition for better type-checking
-export interface CalendarEvent {
-  id: string;
-  summary: string;
-  start: {
-    dateTime?: string;
-    date?: string;
-  };
-  end: {
-    dateTime?: string;
-    date?: string;
-  };
-  category?: string; // Category like travel, sports, etc.
-}
 
 const theme = createTheme();
-
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -57,12 +42,7 @@ function App() {
       <div className="App">
         <h1>Yearify</h1>
         <h2>You are {authenticated ? "authenticated" : "not authenticated"}</h2>
-        <button onClick={(e) => api.handleAuthClick("sign-in", () => setAuthenticated(true))}>
-          Sign In
-        </button>
-        <button onClick={(e) => api.handleAuthClick("sign-out", () => setAuthenticated(false))}>
-          Sign Out
-        </button>
+        <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
 
         {authenticated && (
           <>
