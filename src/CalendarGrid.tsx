@@ -8,8 +8,6 @@ const categoryColors: { [key: string]: string } = {
     appointments: '#FFD700'
 };
 
-
-
 const monthsData: MonthDataProps[] = [
     { name: "January", number: 1, days: 31, startDay: 1 },
     { name: "February", number: 2, days: 29, startDay: 4 },
@@ -71,7 +69,7 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
     )
 };
 
-export const CalendarGrid2 = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
+export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
     return (
         <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"} >
             <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />

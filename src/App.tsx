@@ -1,5 +1,5 @@
 import "./App.css";
-import { CalendarGrid2 } from "./CalendarGrid2";
+import { CalendarGrid } from "./CalendarGrid";
 import { api } from "./api"; // Assuming you have an API module
 import { useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
@@ -7,8 +7,6 @@ import { CssBaseline } from "@mui/material";
 import { createTheme } from "@mui/material/styles"; // Optional, only if you want to customize the theme
 import { AuthButton } from "./AuthButton";
 import { CalendarEvent } from "./types";
-
-
 
 const theme = createTheme();
 
@@ -41,9 +39,7 @@ function App() {
       <CssBaseline />
       <div className="App">
         <h1>Yearify</h1>
-        <h2>You are {authenticated ? "authenticated" : "not authenticated"}</h2>
         <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
-
         {authenticated && (
           <>
             <button onClick={fetchCalendarEvents}>
@@ -52,8 +48,7 @@ function App() {
             <div>
               Calendar Events Count: {calendarEvents.length}
             </div>
-            {calendarEvents.length > 0 && <CalendarGrid2 calendarEvents={calendarEvents} />}
-
+            {calendarEvents.length > 0 && <CalendarGrid calendarEvents={calendarEvents} />}
           </>
         )}
       </div>
