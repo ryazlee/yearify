@@ -15,6 +15,36 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
 
+  const fetchPlaces = async (queries: string[]) => {
+    const serverUrl = "http://localhost:5000/places";
+
+    try {
+      // Create fetch promises for each query
+      const fetchPromises = queries.map((query) => {
+        if (!query) return Promise.resolve(undefined);
+        return fetch(`${serverUrl}?query=${encodeURIComponent(query)}`)
+          .then((response) => {
+            if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);
+            return response.json();
+          })
+          .then((data) => data.results) // Extract the results
+          .catch((error) => {
+            console.error(`Error fetching for query "${query}":`, error);
+            return []; // Return an empty array on failure to prevent halting other requests
+          })
+      });
+
+      // Wait for all fetches to complete
+      const results = await Promise.all(fetchPromises);
+
+      // Flatten the results into a single array
+      return results.flat();
+    } catch (error) {
+      console.error("Error fetching places in bulk:", error);
+      return [];
+    }
+  };
+
   type CategorizedEvents = {
     travel: CalendarEvent[];
     work: CalendarEvent[];
@@ -110,6 +140,10 @@ function App() {
         event.category = category;
       });
     }
+
+    console.log(fetchPlaces(events.map((event) => event.location || '')));
+    // determine category based on location
+
 
     return events
   }
