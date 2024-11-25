@@ -3,9 +3,10 @@ import { CalendarEvent, DayProps, MonthDataProps } from './types';
 
 const categoryColors: { [key: string]: string } = {
     travel: '#FFDDC1',
-    sports: '#C1FFDD',
-    events: '#C1DFFF',
-    appointments: '#FFD700'
+    fitness: '#C1FFDD',
+    social: '#C1DFFF',
+    personal: '#FFD700',
+    work: '#FFC1C1',
 };
 
 const monthsData: MonthDataProps[] = [
@@ -69,13 +70,43 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
     )
 };
 
+const ColorLegend = () => {
+    return (
+        <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
+            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
+                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.travel} />
+                <Typography>Travel</Typography>
+            </Box>
+            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
+                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.fitness} />
+                <Typography>Fitness</Typography>
+            </Box>
+            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
+                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.social} />
+                <Typography>Social</Typography>
+            </Box>
+            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
+                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.personal} />
+                <Typography>Personal</Typography>
+            </Box>
+            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
+                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.work} />
+                <Typography>Work</Typography>
+            </Box>
+        </Box>
+    );
+}
+
 export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
     return (
-        <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"} >
-            <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />
-            <MonthsGrid monthIndexes={[4, 5, 6, 7]} calendarEvents={calendarEvents} />
-            <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
-        </Box >
+        <>
+            <ColorLegend />
+            <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"} >
+                <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />
+                <MonthsGrid monthIndexes={[4, 5, 6, 7]} calendarEvents={calendarEvents} />
+                <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
+            </Box >
+        </>
     );
 }
 

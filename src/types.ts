@@ -4,6 +4,8 @@ export interface CalendarEvent {
     start: string;
     end: string;
     category?: string;
+    description?: string;
+    location?: string;
 }
 
 export interface MonthDataProps {
