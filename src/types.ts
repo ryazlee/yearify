@@ -20,3 +20,12 @@ export interface DayProps {
     num: number;
     isEmpty: boolean;
 }
+
+export type CategorizedEvents = {
+    travel: CalendarEvent[];
+    work: CalendarEvent[];
+    social: CalendarEvent[];
+    fitness: CalendarEvent[];
+    personal: CalendarEvent[];
+    uncategorized: CalendarEvent[];
+};
