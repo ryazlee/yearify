@@ -16,6 +16,7 @@ function App() {
 
   // Categorizing events with random categories
   const categorizeEvents = (events: CalendarEvent[]) => {
+    console.log(JSON.stringify(events));
     return events.map((event) => {
       const categories = ["travel", "sports", "events", "appointments"];
       event.category = categories[Math.floor(Math.random() * categories.length)];
@@ -27,7 +28,15 @@ function App() {
   const fetchCalendarEvents = async () => {
     try {
       const events = await api.getCalendarEvents();
-      const categorizedEvents = categorizeEvents(events);
+      const calendarEvents: CalendarEvent[] = events.map((event: any) => {
+        return {
+          id: event.id,
+          summary: event.summary,
+          start: event.start?.dateTime || event.start?.date || '',
+          end: event.end?.dateTime || event.end?.date || '',
+        };
+      });
+      const categorizedEvents = categorizeEvents(calendarEvents);
       setCalendarEvents(categorizedEvents);
     } catch (error) {
       console.error("Error fetching events:", error);

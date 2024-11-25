@@ -25,7 +25,7 @@ const monthsData: MonthDataProps[] = [
 
 const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarEvent[], isEmpty: boolean }) => {
     const dayEvents = events.filter((event) => {
-        const eventDate = new Date(event.start?.dateTime || event.start?.date || '');
+        const eventDate = new Date(event.start || '');
         return eventDate.getDate() === day.num && eventDate.getMonth() === day.month;
     });
 
