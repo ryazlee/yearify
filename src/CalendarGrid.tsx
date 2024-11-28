@@ -6,7 +6,6 @@ const categoryColors: { [key: string]: string } = {
     fitness: '#C1FFDD',
     social: '#C1DFFF',
     personal: '#FFD700',
-    work: '#FFC1C1',
 };
 
 const monthsData: MonthDataProps[] = [
@@ -89,11 +88,7 @@ const ColorLegend = () => {
                 <Box width={'20px'} height={'20px'} bgcolor={categoryColors.personal} />
                 <Typography>Personal</Typography>
             </Box>
-            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.work} />
-                <Typography>Work</Typography>
-            </Box>
-        </Box>
+        </Box >
     );
 }
 

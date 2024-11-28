@@ -5,7 +5,6 @@ import { CATEGORIES_KEYWORDS, FUSE_OPTIONS } from "./config";
 export function categorizeEvents(events: CalendarEvent[]): CalendarEvent[] {
     const categorized: CategorizedEvents = {
         travel: [],
-        work: [],
         social: [],
         fitness: [],
         personal: [],
@@ -35,6 +34,9 @@ export function categorizeEvents(events: CalendarEvent[]): CalendarEvent[] {
             categorized.uncategorized.push(event);
         }
     });
+
+    console.log("Categorized Events:", categorized);
+    console.log("Count of events in categorized", Object.values(categorized).reduce((acc, val) => acc + val.length, 0));
 
     // iterate through categorized and set CalendarEvent.category
     for (const [category, events] of Object.entries(categorized)) {

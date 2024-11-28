@@ -23,7 +23,6 @@ export interface DayProps {
 
 export type CategorizedEvents = {
     travel: CalendarEvent[];
-    work: CalendarEvent[];
     social: CalendarEvent[];
     fitness: CalendarEvent[];
     personal: CalendarEvent[];

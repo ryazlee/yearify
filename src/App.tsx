@@ -1,10 +1,10 @@
 import "./App.css";
 import { CalendarGrid } from "./CalendarGrid";
-import { api } from "./api"; // Assuming you have an API module
+import { api } from "./api";
 import { useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
-import { createTheme } from "@mui/material/styles"; // Optional, only if you want to customize the theme
+import { createTheme } from "@mui/material/styles";
 import { AuthButton } from "./AuthButton";
 import { CalendarEvent } from "./types";
 import { categorizeEvents } from "./categorizer/utils";
