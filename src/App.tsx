@@ -6,7 +6,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
 import { AuthButton } from "./AuthButton";
-import { CalendarEvent } from "./types";
+import { CalendarEvent, CategorizedEvents } from "./types";
 import { categorizeEvents } from "./categorizer/utils";
 import { EventDragAndDrop } from "./dnd/EventDragAndDrop";
 
@@ -14,7 +14,18 @@ const theme = createTheme();
 
 function App() {
   const [authenticated, setAuthenticated] = useState(false);
-  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
+  const [allEvents, setAllEvents] = useState<CalendarEvent[]>([]);
+
+  const getAllEvents = () => {
+    const events: CalendarEvent[] = [];
+    if (categorizedEvents) {
+      for (const [_, eventsInCategory] of Object.entries(categorizedEvents)) {
+        events.push(...eventsInCategory);
+      }
+    }
+    return events;
+  }
 
   const fetchCalendarEvents = async () => {
     try {
@@ -30,43 +41,17 @@ function App() {
         };
       });
       const categorizedEvents = categorizeEvents(calendarEvents);
-      setCalendarEvents(categorizedEvents);
+      setCategorizedEvents(categorizedEvents);
     } catch (error) {
       console.error("Error fetching events:", error);
     }
   };
 
-  const initialCategories = {
-    travel: [
-      {
-        id: '1', title: 'Travel to Paris'
-      },
-      {
-        id: '2', title: 'Travel to Berlin'
-      },
-      {
-        id: '3', title: 'Travel to London'
-      }
-    ],
-    social: [
-      {
-        id: '4', title: 'Meet friends for dinner'
-      },
-      {
-        id: '5', title: 'Attend a concert'
-      },
-      {
-        id: '6', title: 'Go to a party'
-      }
-    ],
-    fitness: [{
-      id: '7', title: 'Run a 5k'
-    },
-    {
-      id: '8', title: 'Attend a yoga class'
-    }
-    ],
-  };
+  const onUpdateCategoriesHandler = (categorizedEvents: CategorizedEvents) => {
+    console.log("Updated Categories:", categorizedEvents);
+    setCategorizedEvents(categorizedEvents);
+    setAllEvents(getAllEvents());
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -74,16 +59,16 @@ function App() {
       <div className="App">
         <h1>Yearify</h1>
         <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
-        <EventDragAndDrop initialCategories={initialCategories} />
         {authenticated && (
           <>
             <button onClick={fetchCalendarEvents}>
               Get Events
             </button>
             <div>
-              Calendar Events Count: {calendarEvents.length}
+              Calendar Events Count: {getAllEvents().length}
             </div>
-            {calendarEvents.length > 0 && <CalendarGrid calendarEvents={calendarEvents} />}
+            {categorizedEvents && <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />}
+            {categorizedEvents && <CalendarGrid calendarEvents={allEvents} />}
           </>
         )}
       </div>

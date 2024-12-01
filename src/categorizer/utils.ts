@@ -2,7 +2,7 @@ import Fuse from "fuse.js";
 import { CalendarEvent, CategorizedEvents } from "../types";
 import { CATEGORIES_KEYWORDS, FUSE_OPTIONS } from "./config";
 
-export function categorizeEvents(events: CalendarEvent[]): CalendarEvent[] {
+export function categorizeEvents(events: CalendarEvent[]): CategorizedEvents {
     const categorized: CategorizedEvents = {
         travel: [],
         social: [],
@@ -15,6 +15,7 @@ export function categorizeEvents(events: CalendarEvent[]): CalendarEvent[] {
         let matched = false;
 
         if (!event.summary) {
+            event.category = "uncategorized";
             categorized.uncategorized.push(event);
             return;
         }
@@ -24,6 +25,7 @@ export function categorizeEvents(events: CalendarEvent[]): CalendarEvent[] {
             const result = fuse.search(event.summary);
 
             if (result.length > 0) {
+                event.category = category
                 categorized[category as keyof CategorizedEvents].push(event);
                 matched = true;
                 break;
@@ -31,6 +33,7 @@ export function categorizeEvents(events: CalendarEvent[]): CalendarEvent[] {
         }
 
         if (!matched) {
+            event.category = "uncategorized";
             categorized.uncategorized.push(event);
         }
     });
@@ -38,11 +41,5 @@ export function categorizeEvents(events: CalendarEvent[]): CalendarEvent[] {
     console.log("Categorized Events:", categorized);
     console.log("Count of events in categorized", Object.values(categorized).reduce((acc, val) => acc + val.length, 0));
 
-    // iterate through categorized and set CalendarEvent.category
-    for (const [category, events] of Object.entries(categorized)) {
-        events.forEach((event) => {
-            event.category = category;
-        });
-    }
-    return events
+    return categorized
 }

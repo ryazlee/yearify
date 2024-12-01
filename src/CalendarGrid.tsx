@@ -93,6 +93,7 @@ const ColorLegend = () => {
 }
 
 export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
+    console.log("Calendar Events:", calendarEvents);
     return (
         <>
             <ColorLegend />

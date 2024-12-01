@@ -8,14 +8,14 @@ import {
     DraggableProvided,
     DraggableStateSnapshot
 } from "react-beautiful-dnd";
-import { Categories, Event } from "./types";
+import { CalendarEvent, CategorizedEvents } from "../types";
 
-export const EventComponent = ({ task, index }: { task: Event, index: number }) => {
+export const EventComponent = ({ calendarEvent, index }: { calendarEvent: CalendarEvent, index: number }) => {
     // Styling for individual task
     const taskStyle = (isDragging: boolean): React.CSSProperties => ({
         userSelect: 'none',
-        padding: '12px',
-        margin: '0 0 8px 0',
+        padding: '5px',
+        margin: '0 0 4px 0',
         borderRadius: '4px',
         backgroundColor: isDragging ? '#e6f3ff' : '#ffffff',
         border: '1px solid #ddd',
@@ -27,8 +27,8 @@ export const EventComponent = ({ task, index }: { task: Event, index: number }) 
 
     return (
         <Draggable
-            key={task.id}
-            draggableId={task.id}
+            key={calendarEvent.id}
+            draggableId={calendarEvent.id}
             index={index}
         >
             {(
@@ -44,14 +44,14 @@ export const EventComponent = ({ task, index }: { task: Event, index: number }) 
                         ...provided.draggableProps.style
                     }}
                 >
-                    {task.title}
+                    {calendarEvent.summary}
                 </div>
             )}
         </Draggable>
     );
 };
 
-export const EventDragAndDrop = ({ initialCategories }: { initialCategories: Categories }) => {
+export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { initialCategories: CategorizedEvents, onUpdateCategories: (categorizedEvents: CategorizedEvents) => void }) => {
     // Initial state with tasks categorized
     const [categories, setCategories] = useState(initialCategories);
 
@@ -67,11 +67,15 @@ export const EventDragAndDrop = ({ initialCategories }: { initialCategories: Cat
             const column = Array.from(categories[source.droppableId as keyof typeof categories]);
             const [movedItem] = column.splice(source.index, 1);
             column.splice(destination.index, 0, movedItem);
+            movedItem.category = source.droppableId;
 
-            setCategories({
+            const updatedCategories = {
                 ...categories,
                 [source.droppableId]: column
-            });
+            };
+
+            setCategories(updatedCategories);
+            onUpdateCategories(updatedCategories);
         } else {
             // Move item between columns
             const sourceColumn = Array.from(categories[source.droppableId as keyof typeof categories]);
@@ -79,20 +83,24 @@ export const EventDragAndDrop = ({ initialCategories }: { initialCategories: Cat
             const [movedItem] = sourceColumn.splice(source.index, 1);
 
             destinationColumn.splice(destination.index, 0, movedItem);
+            movedItem.category = destination.droppableId;
 
-            setCategories({
+            const updatedCategories = {
                 ...categories,
                 [source.droppableId]: sourceColumn,
                 [destination.droppableId]: destinationColumn
-            });
+            };
+
+            setCategories(updatedCategories);
+            onUpdateCategories(updatedCategories);
         }
     };
 
     // Styling
     const containerStyle: CSSProperties = {
         display: 'flex',
-        gap: '16px',
-        padding: '20px',
+        gap: '8px',
+        padding: '10px',
         backgroundColor: '#f4f4f4',
         borderRadius: '8px',
         justifyContent: 'center'
@@ -101,7 +109,7 @@ export const EventDragAndDrop = ({ initialCategories }: { initialCategories: Cat
     const columnStyle: CSSProperties = {
         width: '250px',
         backgroundColor: '#ffffff',
-        padding: '16px',
+        padding: '8px',
         borderRadius: '8px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
     };
@@ -109,7 +117,7 @@ export const EventDragAndDrop = ({ initialCategories }: { initialCategories: Cat
     return (
         <DragDropContext onDragEnd={onDragEnd}>
             <div style={containerStyle}>
-                {Object.entries(categories).map(([columnId, tasks]) => (
+                {Object.entries(categories).map(([columnId, calendarEvents]) => (
                     <Droppable key={columnId} droppableId={columnId}>
                         {(provided: DroppableProvided) => (
                             <div
@@ -118,8 +126,8 @@ export const EventDragAndDrop = ({ initialCategories }: { initialCategories: Cat
                                 style={columnStyle}
                             >
                                 <h3>{columnId}</h3>
-                                {tasks.map((task, index) => (
-                                    <EventComponent key={task.id} task={task} index={index} />
+                                {calendarEvents.map((calendarEvent, index) => (
+                                    <EventComponent key={calendarEvent.id} calendarEvent={calendarEvent} index={index} />
                                 ))}
                                 {provided.placeholder}
                             </div>
