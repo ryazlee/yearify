@@ -9,9 +9,10 @@ import {
     DraggableStateSnapshot
 } from "react-beautiful-dnd";
 import { CalendarEvent, CategorizedEvents } from "../types";
+import { categoryColors } from "../CalendarGrid";
 
 export const EventComponent = ({ calendarEvent, index }: { calendarEvent: CalendarEvent, index: number }) => {
-    const taskStyle = (isDragging: boolean): React.CSSProperties => ({
+    const eventStyle = (isDragging: boolean): React.CSSProperties => ({
         userSelect: 'none',
         padding: '5px',
         margin: '0 0 4px 0',
@@ -39,7 +40,7 @@ export const EventComponent = ({ calendarEvent, index }: { calendarEvent: Calend
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
                     style={{
-                        ...taskStyle(snapshot.isDragging),
+                        ...eventStyle(snapshot.isDragging),
                         ...provided.draggableProps.style
                     }}
                 >
@@ -99,14 +100,12 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
         display: 'flex',
         gap: '8px',
         padding: '10px',
-        backgroundColor: '#f4f4f4',
         borderRadius: '8px',
         justifyContent: 'center'
     };
 
     const columnStyle: CSSProperties = {
         width: '250px',
-        backgroundColor: '#ffffff',
         padding: '8px',
         borderRadius: '8px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
@@ -121,7 +120,10 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
                             <div
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
-                                style={columnStyle}
+                                style={{
+                                    backgroundColor: categoryColors[columnId],
+                                    ...columnStyle
+                                }}
                             >
                                 <h3>{columnId}</h3>
                                 {calendarEvents.map((calendarEvent, index) => (
@@ -133,6 +135,6 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
                     </Droppable>
                 ))}
             </div>
-        </DragDropContext>
+        </DragDropContext >
     );
 };

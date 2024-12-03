@@ -1,11 +1,12 @@
 import { Box, Typography, Grid2 as Grid } from '@mui/material';
 import { CalendarEvent, DayProps, MonthDataProps } from './types';
 
-const categoryColors: { [key: string]: string } = {
+export const categoryColors: { [key: string]: string } = {
     travel: '#FFDDC1',
     fitness: '#C1FFDD',
     social: '#C1DFFF',
     personal: '#DAB1DA',
+    uncategorized: '#D3D3D3'
 };
 
 const monthsData: MonthDataProps[] = [
@@ -62,7 +63,7 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: isEmpty ? 'white' : categoryColors[getDayEvents[0]?.category || ''],
+                backgroundColor: isEmpty || getDayEvents[0]?.category === 'uncategorized' ? 'white' : categoryColors[getDayEvents[0]?.category || ''],
                 border: '0px solid lightgrey',
             }}
         >
@@ -96,7 +97,7 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
 
 const ColorLegend = () => {
     return (
-        <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
+        <Box display={'flex'} flexDirection={'row'} gap={"10px"} padding={"10px 0"} >
             <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
                 <Box width={'20px'} height={'20px'} bgcolor={categoryColors.travel} />
                 <Typography>Travel</Typography>
@@ -119,13 +120,29 @@ const ColorLegend = () => {
 
 export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
     return (
-        <Box padding={"25px"}>
-            <ColorLegend />
-            <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"}  >
-                <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />
-                <MonthsGrid monthIndexes={[4, 5, 6, 7]} calendarEvents={calendarEvents} />
-                <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
-            </Box >
+        <Box style={{
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '10px',
+            borderRadius: '8px',
+            width: '100%',
+        }}>
+            <Box display={'flex'} justifyContent={'center'}>
+                <ColorLegend />
+            </Box>
+            <Box style={{
+                display: 'flex',
+                gap: '10px',
+                padding: '10px',
+                borderRadius: '8px',
+                justifyContent: 'center',
+            }}>
+                <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"}  >
+                    <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />
+                    <MonthsGrid monthIndexes={[4, 5, 6, 7]} calendarEvents={calendarEvents} />
+                    <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
+                </Box >
+            </Box>
         </Box>
     );
 }
