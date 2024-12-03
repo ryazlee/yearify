@@ -11,26 +11,30 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
         const diffInMinutes = diffInSeconds / 60;
         const diffInHours = diffInMinutes / 60;
 
-        // check if the difference is exactly 24 hours, 0 minutes, and 0 seconds
-        // this is a hack to fix the issue where the end date is set to the next day
         if (diffInHours === 24 && diffInMinutes % 60 === 0 && diffInSeconds % 60 === 0) {
             endDate.setDate(endDate.getDate() - 1);
         }
         return endDate;
-    }
+    };
 
     const getDayEvents = events.filter((event) => {
         const eventStartDate = new Date(event.start || '');
         const eventEndDate = adjustEndDate(event.start ?? '', event.end ?? '');
 
-
         const currentDayStart = new Date(day.year, day.month, day.num, 0, 0, 0); // Start of the day
         const currentDayEnd = new Date(day.year, day.month, day.num, 23, 59, 59); // End of the day
 
         return (
-            (eventStartDate <= currentDayEnd && eventEndDate >= currentDayStart)
+            eventStartDate <= currentDayEnd && eventEndDate >= currentDayStart
         );
     });
+
+    // Get the top two colors
+    const colors = getDayEvents
+        .map(event => CATEGORY_COLORS[event.category || ''])
+        .filter(color => color !== CATEGORY_COLORS['uncategorized'])
+        .filter(Boolean);
+    const [color1, color2] = colors.length > 0 ? [colors[0], colors[1] || colors[0]] : ['white', 'white'];
 
     return (
         <Box
@@ -40,7 +44,9 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: isEmpty || getDayEvents[0]?.category === 'uncategorized' ? 'white' : CATEGORY_COLORS[getDayEvents[0]?.category || ''],
+                background: isEmpty
+                    ? 'white'
+                    : `linear-gradient(135deg, ${color1} 50%, ${color2} 50%)`,
                 border: '0px solid lightgrey',
             }}
         >
@@ -48,6 +54,7 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
         </Box>
     );
 };
+
 
 export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: number[], calendarEvents: CalendarEvent[] }) => {
     const startMonth = MONTHS_DATA[monthIndexes[0]];
