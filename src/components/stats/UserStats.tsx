@@ -1,9 +1,33 @@
 import React, { useRef } from "react";
+import { CalendarEvent, CategorizedEvents, MONTHS_DATA } from "../types";
+import Box from "@mui/material/Box";
 
-const UserStats = ({ children }: { children: React.ReactNode }) => {
+const UserStats = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
+    const categorizedEvents: CategorizedEvents = calendarEvents.reduce(
+        (acc, event) => {
+            const category = event.category || "uncategorized";
+            // Ensure the category is assigned to an array of CalendarEvent
+            acc[category as keyof CategorizedEvents].push(event);
+            return acc;
+        },
+        {
+            travel: [] as CalendarEvent[],
+            fitness: [] as CalendarEvent[],
+            social: [] as CalendarEvent[],
+            personal: [] as CalendarEvent[],
+            uncategorized: [] as CalendarEvent[],
+        }
+    );
+
     return (
         <>
-            UserStats
+            {Object.keys(categorizedEvents).filter(category => category !== 'uncategorized').map((category) => (
+                <div key={category}>
+                    <Box>
+                        {category}: {categorizedEvents[category as keyof CategorizedEvents].length}
+                    </Box>
+                </div>
+            ))}
         </>
     );
 };

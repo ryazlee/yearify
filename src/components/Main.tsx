@@ -7,11 +7,14 @@ import { EventDragAndDrop } from "./dnd/EventDragAndDrop";
 import { AuthButton } from "./auth/AuthButton";
 import { CalendarGrid } from "./calendar/CalendarGrid";
 import Box from "@mui/material/Box";
+import UserStats from "./stats/UserStats";
+import { FormControlLabel, Radio, RadioGroup, Switch, ToggleButton } from "@mui/material";
 
 function Main() {
     const [authenticated, setAuthenticated] = useState(false);
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
     const [allEvents, setAllEvents] = useState<CalendarEvent[]>([]);
+    const [showStats, setShowStats] = useState(false);
 
     useEffect(() => {
         if (authenticated) {
@@ -79,9 +82,23 @@ function Main() {
                     </Box>
                     {categorizedEvents && <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />}
                     {categorizedEvents &&
-                        <DownloadableComponent>
-                            <CalendarGrid calendarEvents={allEvents} />
-                        </DownloadableComponent>
+                        <>
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={showStats}
+                                        onChange={() => setShowStats(!showStats)}
+                                        name="showStats"
+                                        color="primary"
+                                    />
+                                }
+                                label={showStats ? "Hide Stats" : "Show Stats"}
+                            />
+                            <DownloadableComponent>
+                                <CalendarGrid calendarEvents={allEvents} />
+                                {showStats && <UserStats calendarEvents={allEvents} />}
+                            </DownloadableComponent>
+                        </>
                     }
                 </>
             )}
