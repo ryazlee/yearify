@@ -31,11 +31,16 @@ function App() {
     try {
       const events = await api.getCalendarEvents();
       const calendarEvents: CalendarEvent[] = events.map((event: any) => {
+        const startDateTime = new Date(event.start.dateTime || event.start.date);
+        startDateTime.setFullYear(2024);
+        const endDateTime = new Date(event.end.dateTime || event.end.date);
+        endDateTime.setFullYear(2024);
+
         return {
           id: event.id,
           summary: event.summary,
-          start: event.start?.dateTime || event.start?.date || '',
-          end: event.end?.dateTime || event.end?.date || '',
+          start: startDateTime.toISOString(),
+          end: endDateTime.toISOString(),
           description: event.description,
           location: event.location,
         };

@@ -16,6 +16,7 @@ export interface MonthDataProps {
 }
 
 export interface DayProps {
+    year: number;
     month: number;
     num: number;
     isEmpty: boolean;

@@ -25,9 +25,35 @@ const monthsData: MonthDataProps[] = [
 
 const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarEvent[], isEmpty: boolean }) => {
     const dayEvents = events.filter((event) => {
-        const eventDate = new Date(event.start || '');
-        return eventDate.getDate() === day.num && eventDate.getMonth() === day.month;
+        const eventStartDate = new Date(event.start || '');
+        const eventEndDate = adjustEndDate(event.start ?? '', event.end ?? '');
+
+
+        const currentDayStart = new Date(day.year, day.month, day.num, 0, 0, 0); // Start of the day
+        const currentDayEnd = new Date(day.year, day.month, day.num, 23, 59, 59); // End of the day
+
+        return (
+            (eventStartDate <= currentDayEnd && eventEndDate >= currentDayStart)
+        );
     });
+
+    function adjustEndDate(start: string, end: string): Date {
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+
+        const diffInMilliseconds = endDate.getTime() - startDate.getTime();
+
+        // Convert to hours, minutes, and seconds
+        const diffInSeconds = diffInMilliseconds / 1000;
+        const diffInMinutes = diffInSeconds / 60;
+        const diffInHours = diffInMinutes / 60;
+
+        // Check if the difference is exactly 24 hours, 0 minutes, and 0 seconds
+        if (diffInHours === 24 && diffInMinutes % 60 === 0 && diffInSeconds % 60 === 0) {
+            endDate.setDate(endDate.getDate() - 1);
+        }
+        return endDate;
+    }
 
     return (
         <Box
@@ -49,12 +75,12 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
 export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: number[], calendarEvents: CalendarEvent[] }) => {
     const startMonth = monthsData[monthIndexes[0]];
 
-    const startEmptyDays: DayProps[] = Array.from({ length: startMonth.startDay }, (_, i) => ({ num: i, month: 0, isEmpty: true }));
+    const startEmptyDays: DayProps[] = Array.from({ length: startMonth.startDay }, (_, i) => ({ year: 2024, num: i, month: 0, isEmpty: true }));
     let allDays: DayProps[] = [...startEmptyDays];
 
     monthIndexes.forEach((monthIndex) => {
         const month = monthsData[monthIndex];
-        const monthDays: DayProps[] = Array.from({ length: month.days }, (_, i) => ({ num: i + 1, month: monthIndex, isEmpty: false }));
+        const monthDays: DayProps[] = Array.from({ length: month.days }, (_, i) => ({ year: 2024, num: i + 1, month: monthIndex, isEmpty: false }));
         allDays = [...allDays, ...monthDays];
     });
 
