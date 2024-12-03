@@ -9,6 +9,7 @@ import { AuthButton } from "./AuthButton";
 import { CalendarEvent, CategorizedEvents } from "./types";
 import { categorizeEvents } from "./categorizer/utils";
 import { EventDragAndDrop } from "./dnd/EventDragAndDrop";
+import DownloadableComponent from "./downloadableImage/DownloadableComponent";
 
 const theme = createTheme();
 
@@ -88,7 +89,11 @@ function App() {
               Calendar Events Count: {getAllEvents().length}
             </div>
             {categorizedEvents && <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />}
-            {categorizedEvents && <CalendarGrid calendarEvents={allEvents} />}
+            {categorizedEvents &&
+              <DownloadableComponent>
+                <CalendarGrid calendarEvents={allEvents} />
+              </DownloadableComponent>
+            }
           </>
         )}
       </div>
