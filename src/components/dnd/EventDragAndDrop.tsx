@@ -144,6 +144,8 @@ export const EventDragAndDrop = ({
         onUpdateCategories(updatedCategories);
     };
 
+    const totalEvents = Object.values(categories).reduce((acc, events) => acc + events.length, 0);
+
     // Styling
     const containerStyle: CSSProperties = {
         display: 'flex',
@@ -189,7 +191,7 @@ export const EventDragAndDrop = ({
                                     ...columnStyle,
                                 }}
                             >
-                                <h3 style={headerStyle}>{columnId}</h3>
+                                <h3 style={headerStyle}>{columnId} ({categories[columnId as keyof CategorizedEvents].length}/{totalEvents})</h3>
                                 {calendarEvents.map((calendarEvent, index) => (
                                     <EventComponent
                                         key={calendarEvent.id}
