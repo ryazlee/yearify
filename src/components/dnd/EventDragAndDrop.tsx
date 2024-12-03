@@ -33,7 +33,15 @@ export const EventComponent = ({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
+        width: '100%',
     });
+
+    const textStyle: React.CSSProperties = {
+        wordWrap: 'break-word',
+        maxWidth: '150px',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+    };
 
     return (
         <Draggable
@@ -54,10 +62,10 @@ export const EventComponent = ({
                         ...provided.draggableProps.style,
                     }}
                 >
-                    <span>{calendarEvent.summary}</span>
+                    <span style={textStyle}>{calendarEvent.summary}</span>
                     <button
                         onClick={(e) => {
-                            e.stopPropagation(); // Prevent drag interaction
+                            e.stopPropagation();
                             onDeleteCallback(calendarEvent.id);
                         }}
                         style={{
@@ -77,34 +85,37 @@ export const EventComponent = ({
         </Draggable>
     );
 };
-export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { initialCategories: CategorizedEvents, onUpdateCategories: (categorizedEvents: CategorizedEvents) => void }) => {
-    const [categories, setCategories] = useState(initialCategories);
 
-    // Handle drag and drop
+export const EventDragAndDrop = ({
+    initialCategories,
+    onUpdateCategories,
+}: {
+    initialCategories: CategorizedEvents;
+    onUpdateCategories: (categorizedEvents: CategorizedEvents) => void;
+}) => {
+    const [categories, setCategories] = useState<CategorizedEvents>(initialCategories);
+
     const onDragEnd = (result: DropResult) => {
         const { source, destination } = result;
 
-        // If no destination, do nothing
         if (!destination) return;
 
-        // If the item was dropped in the same column, reorder within the column
         if (source.droppableId === destination.droppableId) {
-            const column = Array.from(categories[source.droppableId as keyof typeof categories]);
+            const column = Array.from(categories[source.droppableId as keyof CategorizedEvents]);
             const [movedItem] = column.splice(source.index, 1);
             column.splice(destination.index, 0, movedItem);
             movedItem.category = source.droppableId;
 
             const updatedCategories = {
                 ...categories,
-                [source.droppableId]: column
+                [source.droppableId as keyof CategorizedEvents]: column
             };
 
             setCategories(updatedCategories);
             onUpdateCategories(updatedCategories);
         } else {
-            // Move item between columns
-            const sourceColumn = Array.from(categories[source.droppableId as keyof typeof categories]);
-            const destinationColumn = Array.from(categories[destination.droppableId as keyof typeof categories]);
+            const sourceColumn = Array.from(categories[source.droppableId as keyof CategorizedEvents]);
+            const destinationColumn = Array.from(categories[destination.droppableId as keyof CategorizedEvents]);
             const [movedItem] = sourceColumn.splice(source.index, 1);
 
             destinationColumn.splice(destination.index, 0, movedItem);
@@ -112,8 +123,8 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
 
             const updatedCategories = {
                 ...categories,
-                [source.droppableId]: sourceColumn,
-                [destination.droppableId]: destinationColumn
+                [source.droppableId as keyof CategorizedEvents]: sourceColumn,
+                [destination.droppableId as keyof CategorizedEvents]: destinationColumn
             };
 
             setCategories(updatedCategories);
@@ -124,12 +135,14 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
     const onDeleteCallbackHandler = (id: string) => {
         const updatedCategories = { ...categories };
         for (const category in updatedCategories) {
-            updatedCategories[category as keyof typeof categories] = updatedCategories[category as keyof typeof categories].filter((event) => event.id !== id);
+            updatedCategories[category as keyof CategorizedEvents] = updatedCategories[category as keyof CategorizedEvents].filter(
+                (event) => event.id !== id
+            );
         }
 
         setCategories(updatedCategories);
         onUpdateCategories(updatedCategories);
-    }
+    };
 
     // Styling
     const containerStyle: CSSProperties = {
@@ -137,14 +150,29 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
         gap: '8px',
         padding: '10px',
         borderRadius: '8px',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        flexWrap: 'wrap',
     };
 
     const columnStyle: CSSProperties = {
-        width: '250px',
+        maxWidth: '250px',
+        maxHeight: '400px',
         padding: '8px',
         borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        marginBottom: '10px',
+        overflowY: 'auto',
+    };
+
+    const headerStyle: CSSProperties = {
+        fontSize: '14px',
+        fontWeight: 'bold',
+        backgroundColor: '#fff',
+        padding: '5px',
+        position: 'sticky',
+        top: 0,
+        zIndex: 1,
+        borderBottom: '1px solid #ddd',
     };
 
     return (
@@ -158,12 +186,17 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
                                 {...provided.droppableProps}
                                 style={{
                                     backgroundColor: CATEGORY_COLORS[columnId],
-                                    ...columnStyle
+                                    ...columnStyle,
                                 }}
                             >
-                                <h3>{columnId}</h3>
+                                <h3 style={headerStyle}>{columnId}</h3>
                                 {calendarEvents.map((calendarEvent, index) => (
-                                    <EventComponent key={calendarEvent.id} calendarEvent={calendarEvent} index={index} onDeleteCallback={onDeleteCallbackHandler} />
+                                    <EventComponent
+                                        key={calendarEvent.id}
+                                        calendarEvent={calendarEvent}
+                                        index={index}
+                                        onDeleteCallback={onDeleteCallbackHandler}
+                                    />
                                 ))}
                                 {provided.placeholder}
                             </div>
@@ -171,6 +204,7 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
                     </Droppable>
                 ))}
             </div>
-        </DragDropContext >
+        </DragDropContext>
     );
 };
+
