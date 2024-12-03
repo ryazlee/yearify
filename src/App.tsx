@@ -47,9 +47,9 @@ function App() {
     try {
       const events = await api.getCalendarEvents();
       const calendarEvents: CalendarEvent[] = events.map((event: any) => {
-        const startDateTime = new Date(event.start.dateTime || event.start.date);
+        const startDateTime = new Date(event.start?.dateTime || event.start?.date);
         startDateTime.setFullYear(2024);
-        const endDateTime = new Date(event.end.dateTime || event.end.date);
+        const endDateTime = new Date(event.end?.dateTime || event.end?.date);
         endDateTime.setFullYear(2024);
 
         return {
