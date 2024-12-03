@@ -5,7 +5,7 @@ const categoryColors: { [key: string]: string } = {
     travel: '#FFDDC1',
     fitness: '#C1FFDD',
     social: '#C1DFFF',
-    personal: '#FFD700',
+    personal: '#DAB1DA',
 };
 
 const monthsData: MonthDataProps[] = [
@@ -119,14 +119,14 @@ const ColorLegend = () => {
 
 export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
     return (
-        <>
-            <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"} >
+        <Box padding={"25px"}>
+            <ColorLegend />
+            <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"}  >
                 <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />
                 <MonthsGrid monthIndexes={[4, 5, 6, 7]} calendarEvents={calendarEvents} />
                 <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
             </Box >
-            <ColorLegend />
-        </>
+        </Box>
     );
 }
 
