@@ -1,15 +1,15 @@
 import "./App.css";
-import { CalendarGrid } from "./CalendarGrid";
+import { CalendarGrid } from "./components/calendar/CalendarGrid";
 import { api } from "./api";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
-import { AuthButton } from "./AuthButton";
-import { CalendarEvent, CategorizedEvents } from "./types";
-import { categorizeEvents } from "./categorizer/utils";
-import { EventDragAndDrop } from "./dnd/EventDragAndDrop";
-import DownloadableComponent from "./downloadableImage/DownloadableComponent";
+import { AuthButton } from "./components/auth/AuthButton";
+import { CalendarEvent, CategorizedEvents } from "./components/types";
+import { EventDragAndDrop } from "./components/dnd/EventDragAndDrop";
+import DownloadableComponent from "./components/downloadableImage/DownloadableComponent";
+import { categorizeEvents } from "./components/categorizer/utils";
 
 const theme = createTheme();
 
@@ -69,7 +69,6 @@ function App() {
   };
 
   const onUpdateCategoriesHandler = (categorizedEvents: CategorizedEvents) => {
-    console.log("Updated Categories:", categorizedEvents);
     setCategorizedEvents(categorizedEvents);
     setAllEvents(getAllEvents());
   }

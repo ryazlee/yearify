@@ -1,5 +1,5 @@
 
-import { api } from './api';
+import { api } from '../../api';
 
 export const AuthButton = ({ isAuthenticated, callback }: { isAuthenticated: boolean, callback: () => void }) => {
     return (

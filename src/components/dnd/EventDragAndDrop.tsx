@@ -8,8 +8,7 @@ import {
     DraggableProvided,
     DraggableStateSnapshot
 } from "react-beautiful-dnd";
-import { CalendarEvent, CategorizedEvents } from "../types";
-import { categoryColors } from "../CalendarGrid";
+import { CalendarEvent, CategorizedEvents, CATEGORY_COLORS } from "../types";
 
 export const EventComponent = ({ calendarEvent, index }: { calendarEvent: CalendarEvent, index: number }) => {
     const eventStyle = (isDragging: boolean): React.CSSProperties => ({
@@ -121,7 +120,7 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
                                 ref={provided.innerRef}
                                 {...provided.droppableProps}
                                 style={{
-                                    backgroundColor: categoryColors[columnId],
+                                    backgroundColor: CATEGORY_COLORS[columnId],
                                     ...columnStyle
                                 }}
                             >

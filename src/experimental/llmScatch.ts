@@ -1,4 +1,4 @@
-import { CalendarEvent } from "../types";
+import { CalendarEvent } from "../components/types";
 import Anthropic from '@anthropic-ai/sdk';
 
 class llmClient {

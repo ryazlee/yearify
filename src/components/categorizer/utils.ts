@@ -1,6 +1,6 @@
 import Fuse from "fuse.js";
-import { CalendarEvent, CategorizedEvents } from "../types";
 import { CATEGORIES_KEYWORDS, FUSE_OPTIONS } from "./config";
+import { CalendarEvent, CategorizedEvents } from "../types";
 
 export function categorizeEvents(events: CalendarEvent[]): CategorizedEvents {
     const categorized: CategorizedEvents = {
@@ -38,8 +38,8 @@ export function categorizeEvents(events: CalendarEvent[]): CategorizedEvents {
         }
     });
 
-    console.log("Categorized Events:", categorized);
-    console.log("Count of events in categorized", Object.values(categorized).reduce((acc, val) => acc + val.length, 0));
+    console.info("Categorized Events:", categorized);
+    console.info("Count of events in categorized", Object.values(categorized).reduce((acc, val) => acc + val.length, 0));
 
     return categorized
 }

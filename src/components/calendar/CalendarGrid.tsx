@@ -1,28 +1,5 @@
 import { Box, Typography, Grid2 as Grid } from '@mui/material';
-import { CalendarEvent, DayProps, MonthDataProps } from './types';
-
-export const categoryColors: { [key: string]: string } = {
-    travel: '#FFDDC1',
-    fitness: '#C1FFDD',
-    social: '#C1DFFF',
-    personal: '#DAB1DA',
-    uncategorized: '#D3D3D3'
-};
-
-const monthsData: MonthDataProps[] = [
-    { name: "January", number: 1, days: 31, startDay: 1 },
-    { name: "February", number: 2, days: 29, startDay: 4 },
-    { name: "March", number: 3, days: 31, startDay: 3 },
-    { name: "April", number: 4, days: 30, startDay: 0 },
-    { name: "May", number: 5, days: 31, startDay: 2 },
-    { name: "June", number: 6, days: 30, startDay: 5 },
-    { name: "July", number: 7, days: 31, startDay: 2 },
-    { name: "August", number: 8, days: 31, startDay: 3 },
-    { name: "September", number: 9, days: 30, startDay: 6 },
-    { name: "October", number: 10, days: 31, startDay: 6 },
-    { name: "November", number: 11, days: 30, startDay: 5 },
-    { name: "December", number: 12, days: 31, startDay: 2 }
-];
+import { CalendarEvent, CATEGORY_COLORS, DayProps, MONTHS_DATA } from '../types';
 
 const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarEvent[], isEmpty: boolean }) => {
     const adjustEndDate = (start: string, end: string): Date => {
@@ -63,7 +40,7 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: isEmpty || getDayEvents[0]?.category === 'uncategorized' ? 'white' : categoryColors[getDayEvents[0]?.category || ''],
+                backgroundColor: isEmpty || getDayEvents[0]?.category === 'uncategorized' ? 'white' : CATEGORY_COLORS[getDayEvents[0]?.category || ''],
                 border: '0px solid lightgrey',
             }}
         >
@@ -73,13 +50,13 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
 };
 
 export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: number[], calendarEvents: CalendarEvent[] }) => {
-    const startMonth = monthsData[monthIndexes[0]];
+    const startMonth = MONTHS_DATA[monthIndexes[0]];
 
     const startEmptyDays: DayProps[] = Array.from({ length: startMonth.startDay }, (_, i) => ({ year: 2024, num: i, month: 0, isEmpty: true }));
     let allDays: DayProps[] = [...startEmptyDays];
 
     monthIndexes.forEach((monthIndex) => {
-        const month = monthsData[monthIndex];
+        const month = MONTHS_DATA[monthIndex];
         const monthDays: DayProps[] = Array.from({ length: month.days }, (_, i) => ({ year: 2024, num: i + 1, month: monthIndex, isEmpty: false }));
         allDays = [...allDays, ...monthDays];
     });
@@ -99,19 +76,19 @@ const ColorLegend = () => {
     return (
         <Box display={'flex'} flexDirection={'row'} gap={"10px"} padding={"10px 0"} >
             <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.travel} />
+                <Box width={'20px'} height={'20px'} bgcolor={CATEGORY_COLORS.travel} />
                 <Typography>Travel</Typography>
             </Box>
             <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.fitness} />
+                <Box width={'20px'} height={'20px'} bgcolor={CATEGORY_COLORS.fitness} />
                 <Typography>Fitness</Typography>
             </Box>
             <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.social} />
+                <Box width={'20px'} height={'20px'} bgcolor={CATEGORY_COLORS.social} />
                 <Typography>Social</Typography>
             </Box>
             <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={categoryColors.personal} />
+                <Box width={'20px'} height={'20px'} bgcolor={CATEGORY_COLORS.personal} />
                 <Typography>Personal</Typography>
             </Box>
         </Box >
