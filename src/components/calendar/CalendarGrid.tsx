@@ -1,5 +1,6 @@
 import { Box, Typography, Grid2 as Grid } from '@mui/material';
 import { CalendarEvent, CATEGORY_COLORS, DayProps, MONTHS_DATA } from '../types';
+import { ColorLegend } from './ColorLegend';
 
 const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarEvent[], isEmpty: boolean }) => {
     const adjustEndDate = (start: string, end: string): Date => {
@@ -78,29 +79,6 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
         </Grid>
     )
 };
-
-const ColorLegend = () => {
-    return (
-        <Box display={'flex'} flexDirection={'row'} gap={"10px"} padding={"10px 0"} >
-            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={CATEGORY_COLORS.travel} />
-                <Typography>Travel</Typography>
-            </Box>
-            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={CATEGORY_COLORS.fitness} />
-                <Typography>Fitness</Typography>
-            </Box>
-            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={CATEGORY_COLORS.social} />
-                <Typography>Social</Typography>
-            </Box>
-            <Box display={'flex'} flexDirection={'row'} gap={"10px"} >
-                <Box width={'20px'} height={'20px'} bgcolor={CATEGORY_COLORS.personal} />
-                <Typography>Personal</Typography>
-            </Box>
-        </Box >
-    );
-}
 
 export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
     return (

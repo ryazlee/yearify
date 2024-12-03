@@ -8,7 +8,6 @@ import { AuthButton } from "./auth/AuthButton";
 import { CalendarGrid } from "./calendar/CalendarGrid";
 import Box from "@mui/material/Box";
 
-
 function Main() {
     const [authenticated, setAuthenticated] = useState(false);
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
