@@ -10,7 +10,15 @@ import {
 } from "react-beautiful-dnd";
 import { CalendarEvent, CategorizedEvents, CATEGORY_COLORS } from "../types";
 
-export const EventComponent = ({ calendarEvent, index }: { calendarEvent: CalendarEvent, index: number }) => {
+export const EventComponent = ({
+    calendarEvent,
+    index,
+    onDeleteCallback,
+}: {
+    calendarEvent: CalendarEvent;
+    index: number;
+    onDeleteCallback: (id: string) => void;
+}) => {
     const eventStyle = (isDragging: boolean): React.CSSProperties => ({
         userSelect: 'none',
         padding: '5px',
@@ -21,7 +29,10 @@ export const EventComponent = ({ calendarEvent, index }: { calendarEvent: Calend
         boxShadow: isDragging
             ? '0 4px 6px rgba(0,0,0,0.1)'
             : '0 2px 3px rgba(0,0,0,0.05)',
-        transition: 'all 0.2s ease'
+        transition: 'all 0.2s ease',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
     });
 
     return (
@@ -40,16 +51,32 @@ export const EventComponent = ({ calendarEvent, index }: { calendarEvent: Calend
                     {...provided.dragHandleProps}
                     style={{
                         ...eventStyle(snapshot.isDragging),
-                        ...provided.draggableProps.style
+                        ...provided.draggableProps.style,
                     }}
                 >
-                    {calendarEvent.summary}
+                    <span>{calendarEvent.summary}</span>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation(); // Prevent drag interaction
+                            onDeleteCallback(calendarEvent.id);
+                        }}
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#888',
+                            cursor: 'pointer',
+                            fontSize: '12px',
+                            marginLeft: '8px',
+                        }}
+                        aria-label="Delete Event"
+                    >
+                        ✕
+                    </button>
                 </div>
             )}
         </Draggable>
     );
 };
-
 export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { initialCategories: CategorizedEvents, onUpdateCategories: (categorizedEvents: CategorizedEvents) => void }) => {
     const [categories, setCategories] = useState(initialCategories);
 
@@ -94,6 +121,16 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
         }
     };
 
+    const onDeleteCallbackHandler = (id: string) => {
+        const updatedCategories = { ...categories };
+        for (const category in updatedCategories) {
+            updatedCategories[category as keyof typeof categories] = updatedCategories[category as keyof typeof categories].filter((event) => event.id !== id);
+        }
+
+        setCategories(updatedCategories);
+        onUpdateCategories(updatedCategories);
+    }
+
     // Styling
     const containerStyle: CSSProperties = {
         display: 'flex',
@@ -126,7 +163,7 @@ export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { in
                             >
                                 <h3>{columnId}</h3>
                                 {calendarEvents.map((calendarEvent, index) => (
-                                    <EventComponent key={calendarEvent.id} calendarEvent={calendarEvent} index={index} />
+                                    <EventComponent key={calendarEvent.id} calendarEvent={calendarEvent} index={index} onDeleteCallback={onDeleteCallbackHandler} />
                                 ))}
                                 {provided.placeholder}
                             </div>
