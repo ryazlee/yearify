@@ -1,0 +1,43 @@
+Terms of Service for Yearify  
+Effective Date: Dec 3, 2024 
+
+Introduction  
+Welcome to Yearify! By using our app, you agree to these Terms of Service ("Terms"). Please read them carefully. If you do not agree to these Terms, do not use the app.  
+
+1. Use of the App  
+Yearify provides users with a way to generate a "Year in Review" visualization based on their Google Calendar data. By using the app, you agree to:  
+- Use the app only for personal, non-commercial purposes.  
+- Not misuse the app or interfere with its normal operation.  
+
+2. User Responsibilities  
+- You are responsible for safeguarding your Google account credentials.  
+- You agree not to use the app to access or manipulate data you do not have the right to access.  
+
+3. Privacy  
+Your use of the app is governed by our Privacy Policy, which explains how we collect, use, and protect your information. Please review it at https://ryazlee.github.io/yearify/legal/privacy-polic.txt.  
+
+4. Intellectual Property  
+- All content, design, and functionality of the app are owned by Ryan.  
+- You may not copy, distribute, or create derivative works based on the app without our express permission.  
+
+5. Limitations of Liability  
+- The app is provided "as is," and we make no guarantees about its accuracy, reliability, or availability.  
+- We are not responsible for any loss or damage arising from your use of the app.  
+
+6. Termination  
+We reserve the right to terminate or restrict your access to the app at our discretion, without notice, if you violate these Terms or use the app in a harmful manner.  
+
+7. Third-Party Services  
+The app integrates with Google Calendar. Your use of this service is subject to Google’s Terms of Service (https://policies.google.com/terms).  
+
+8. Changes to the Terms  
+We may update these Terms from time to time. If we make significant changes, we will notify you by posting the updated Terms in the app or on our website.  
+
+9. Governing Law  
+These Terms are governed by and construed in accordance with the laws of California.  
+
+10. Contact Us  
+If you have any questions about these Terms, please contact us at:  
+Email: ryan.j.lee99@gmail.com
+
+By using Yearify, you agree to these Terms of Service. Thank you for using our app!
