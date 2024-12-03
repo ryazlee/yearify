@@ -24,7 +24,24 @@ const monthsData: MonthDataProps[] = [
 ];
 
 const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarEvent[], isEmpty: boolean }) => {
-    const dayEvents = events.filter((event) => {
+    const adjustEndDate = (start: string, end: string): Date => {
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+
+        const diffInMilliseconds = endDate.getTime() - startDate.getTime();
+        const diffInSeconds = diffInMilliseconds / 1000;
+        const diffInMinutes = diffInSeconds / 60;
+        const diffInHours = diffInMinutes / 60;
+
+        // check if the difference is exactly 24 hours, 0 minutes, and 0 seconds
+        // this is a hack to fix the issue where the end date is set to the next day
+        if (diffInHours === 24 && diffInMinutes % 60 === 0 && diffInSeconds % 60 === 0) {
+            endDate.setDate(endDate.getDate() - 1);
+        }
+        return endDate;
+    }
+
+    const getDayEvents = events.filter((event) => {
         const eventStartDate = new Date(event.start || '');
         const eventEndDate = adjustEndDate(event.start ?? '', event.end ?? '');
 
@@ -37,24 +54,6 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
         );
     });
 
-    function adjustEndDate(start: string, end: string): Date {
-        const startDate = new Date(start);
-        const endDate = new Date(end);
-
-        const diffInMilliseconds = endDate.getTime() - startDate.getTime();
-
-        // Convert to hours, minutes, and seconds
-        const diffInSeconds = diffInMilliseconds / 1000;
-        const diffInMinutes = diffInSeconds / 60;
-        const diffInHours = diffInMinutes / 60;
-
-        // Check if the difference is exactly 24 hours, 0 minutes, and 0 seconds
-        if (diffInHours === 24 && diffInMinutes % 60 === 0 && diffInSeconds % 60 === 0) {
-            endDate.setDate(endDate.getDate() - 1);
-        }
-        return endDate;
-    }
-
     return (
         <Box
             sx={{
@@ -63,7 +62,7 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: isEmpty ? 'white' : categoryColors[dayEvents[0]?.category || ''],
+                backgroundColor: isEmpty ? 'white' : categoryColors[getDayEvents[0]?.category || ''],
                 border: '0px solid lightgrey',
             }}
         >
@@ -119,15 +118,14 @@ const ColorLegend = () => {
 }
 
 export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
-    console.log("Calendar Events:", calendarEvents);
     return (
         <>
-            <ColorLegend />
             <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"} >
                 <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />
                 <MonthsGrid monthIndexes={[4, 5, 6, 7]} calendarEvents={calendarEvents} />
                 <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
             </Box >
+            <ColorLegend />
         </>
     );
 }

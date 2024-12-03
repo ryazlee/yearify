@@ -1,7 +1,7 @@
 import "./App.css";
 import { CalendarGrid } from "./CalendarGrid";
 import { api } from "./api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ThemeProvider } from "@mui/material/styles";
 import { CssBaseline } from "@mui/material";
 import { createTheme } from "@mui/material/styles";
@@ -16,6 +16,21 @@ function App() {
   const [authenticated, setAuthenticated] = useState(false);
   const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
   const [allEvents, setAllEvents] = useState<CalendarEvent[]>([]);
+
+
+  useEffect(() => {
+    if (authenticated) {
+      fetchCalendarEvents();
+    }
+  }, [authenticated]);
+
+
+  useEffect(() => {
+    if (categorizedEvents) {
+      setAllEvents(getAllEvents());
+    }
+  }, [categorizedEvents]);
+
 
   const getAllEvents = () => {
     const events: CalendarEvent[] = [];

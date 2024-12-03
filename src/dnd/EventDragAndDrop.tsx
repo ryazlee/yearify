@@ -11,7 +11,6 @@ import {
 import { CalendarEvent, CategorizedEvents } from "../types";
 
 export const EventComponent = ({ calendarEvent, index }: { calendarEvent: CalendarEvent, index: number }) => {
-    // Styling for individual task
     const taskStyle = (isDragging: boolean): React.CSSProperties => ({
         userSelect: 'none',
         padding: '5px',
@@ -52,7 +51,6 @@ export const EventComponent = ({ calendarEvent, index }: { calendarEvent: Calend
 };
 
 export const EventDragAndDrop = ({ initialCategories, onUpdateCategories }: { initialCategories: CategorizedEvents, onUpdateCategories: (categorizedEvents: CategorizedEvents) => void }) => {
-    // Initial state with tasks categorized
     const [categories, setCategories] = useState(initialCategories);
 
     // Handle drag and drop
