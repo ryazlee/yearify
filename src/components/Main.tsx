@@ -8,7 +8,7 @@ import { AuthButton } from "./auth/AuthButton";
 import { CalendarGrid } from "./calendar/CalendarGrid";
 import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
-import { FormControlLabel, Radio, RadioGroup, Switch, ToggleButton } from "@mui/material";
+import { FormControlLabel, Switch } from "@mui/material";
 
 function Main() {
     const [authenticated, setAuthenticated] = useState(false);

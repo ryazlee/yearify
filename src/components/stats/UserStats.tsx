@@ -1,5 +1,4 @@
-import React, { useRef } from "react";
-import { CalendarEvent, CategorizedEvents, MONTHS_DATA } from "../types";
+import { CalendarEvent, CategorizedEvents } from "../types";
 import Box from "@mui/material/Box";
 
 const UserStats = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
