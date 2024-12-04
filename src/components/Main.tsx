@@ -15,7 +15,7 @@ const Footer = () => {
     return (
         <footer style={{
             position: 'fixed',
-            bottom: 0,
+            bottom: 5,
             right: 10,
         }}>
             <a href="https://ryazlee.github.io/yearify/legal/privacy-policy.txt" >
