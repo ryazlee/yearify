@@ -10,6 +10,21 @@ import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
 import { FormControlLabel, Switch } from "@mui/material";
 
+
+const Footer = () => {
+    return (
+        <footer style={{
+            position: 'fixed',
+            bottom: 0,
+            right: 10,
+        }}>
+            <a href="https://ryazlee.github.io/yearify/legal/privacy-policy.txt" >
+                Privacy Policy
+            </a>
+        </footer >
+    );
+};
+
 function Main() {
     const [authenticated, setAuthenticated] = useState(false);
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
@@ -102,6 +117,7 @@ function Main() {
                     }
                 </>
             )}
+            <Footer />
         </>
     );
 }
