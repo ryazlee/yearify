@@ -40,8 +40,8 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
     return (
         <Box
             sx={{
-                width: '40px',
-                height: '40px',
+                width: '18px',
+                height: '18px',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -51,7 +51,7 @@ const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarE
                 border: '0px solid lightgrey',
             }}
         >
-            {!isEmpty && <Typography>{day.num}</Typography>}
+            {!isEmpty && <Typography sx={{ fontSize: 8 }}>{day.num}</Typography>}
         </Box>
     );
 };
@@ -70,7 +70,7 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
     });
 
     return (
-        <Grid container spacing={0} width={'280px'}>
+        <Grid container width={'130px'}>
             {allDays.map(day =>
                 <Grid>
                     <DateSquare day={day} events={calendarEvents} isEmpty={day.isEmpty} />
@@ -85,7 +85,7 @@ export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent
         <Box style={{
             display: 'flex',
             flexDirection: 'column',
-            padding: '10px',
+            padding: '5px',
             borderRadius: '8px',
             width: '100%',
         }}>
@@ -94,12 +94,10 @@ export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent
             </Box>
             <Box style={{
                 display: 'flex',
-                gap: '10px',
-                padding: '10px',
                 borderRadius: '8px',
                 justifyContent: 'center',
             }}>
-                <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"10px"}  >
+                <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"0px"} >
                     <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />
                     <MonthsGrid monthIndexes={[4, 5, 6, 7]} calendarEvents={calendarEvents} />
                     <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />

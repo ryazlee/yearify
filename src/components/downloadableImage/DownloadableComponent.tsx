@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import html2canvas from "html2canvas";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 
 const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
     const componentRef = useRef<HTMLDivElement>(null);
@@ -76,9 +76,30 @@ const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
     return (
         <Box style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
             <Box style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-                <button onClick={handleShare} style={buttonStyle}>Share Image</button>
-                <button onClick={handleDownload} style={buttonStyle}>Download Image</button>
-                <button onClick={handleViewInNewWindow} style={buttonStyle}>View in New Window</button>
+                <Button
+                    onClick={handleShare}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                >
+                    Share Image
+                </Button>
+                <Button
+                    onClick={handleDownload}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                >
+                    Download Image
+                </Button>
+                <Button
+                    onClick={handleViewInNewWindow}
+                    variant="contained"
+                    color="primary"
+                    size="small"
+                >
+                    View in New Window
+                </Button>
             </Box>
             <Box
                 ref={componentRef}
@@ -95,12 +116,6 @@ const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
             </Box>
         </Box>
     );
-};
-
-const buttonStyle = {
-    fontSize: "16px",
-    cursor: "pointer",
-    padding: "10px 20px",
 };
 
 export default DownloadableComponent;

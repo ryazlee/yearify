@@ -15,9 +15,8 @@ const Footer = () => {
         <Box
             component="footer"
             sx={{
-                position: "fixed",
-                bottom: 5,
-                right: 10,
+                textAlign: 'center',
+                padding: '2rem 0',
             }}
         >
             <Link
@@ -27,10 +26,23 @@ const Footer = () => {
                 target="_blank"
                 rel="noopener"
                 sx={{
-                    fontSize: "0.875rem", // Small font size
+                    fontSize: '0.75rem',
+                    marginRight: '1rem',
                 }}
             >
                 Privacy Policy
+            </Link>
+            <Link
+                href="https://ryazlee.github.io/yearify/legal/terms-of-service.txt"
+                underline="hover"
+                color="textSecondary"
+                target="_blank"
+                rel="noopener"
+                sx={{
+                    fontSize: '0.75rem',
+                }}
+            >
+                Terms of Service
             </Link>
         </Box>
     );
@@ -84,8 +96,6 @@ const LandingPage = () => {
         </Box>
     );
 };
-
-
 
 function Main() {
     const [authenticated, setAuthenticated] = useState(false);
@@ -146,11 +156,12 @@ function Main() {
     };
 
     return (
-        <div>
+        <Box paddingBottom={10}>
             {!authenticated ? (
                 <>
                     <LandingPage />
                     <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
+                    <Footer />
                 </>
             ) : (
                 <>
@@ -183,8 +194,7 @@ function Main() {
                     )}
                 </>
             )}
-            <Footer />
-        </div>
+        </Box>
     );
 }
 

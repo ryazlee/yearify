@@ -1,3 +1,4 @@
+import { Typography } from "@mui/material";
 import { CalendarEvent, CategorizedEvents } from "../types";
 import Box from "@mui/material/Box";
 
@@ -22,9 +23,9 @@ const UserStats = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
         <>
             {Object.keys(categorizedEvents).filter(category => category !== 'uncategorized').map((category) => (
                 <div key={category}>
-                    <Box>
+                    <Typography sx={{ fontSize: 8 }}>
                         {category}: {categorizedEvents[category as keyof CategorizedEvents].length}
-                    </Box>
+                    </Typography>
                 </div>
             ))}
         </>
