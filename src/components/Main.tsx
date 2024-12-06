@@ -8,40 +8,83 @@ import { AuthButton } from "./auth/AuthButton";
 import { CalendarGrid } from "./calendar/CalendarGrid";
 import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
-import { FormControlLabel, Switch } from "@mui/material";
+import { FormControlLabel, Link, Switch, Typography } from "@mui/material";
 
 const Footer = () => {
     return (
-        <footer style={{
-            position: 'fixed',
-            bottom: 5,
-            right: 10,
-        }}>
-            <a href="https://ryazlee.github.io/yearify/legal/privacy-policy.txt" >
+        <Box
+            component="footer"
+            sx={{
+                position: "fixed",
+                bottom: 5,
+                right: 10,
+            }}
+        >
+            <Link
+                href="https://ryazlee.github.io/yearify/legal/privacy-policy.txt"
+                underline="hover"
+                color="textSecondary"
+                target="_blank"
+                rel="noopener"
+                sx={{
+                    fontSize: "0.875rem", // Small font size
+                }}
+            >
                 Privacy Policy
-            </a>
-        </footer >
+            </Link>
+        </Box>
     );
 };
 
+const Header = () => {
+    return (
+        <Box
+            component="header"
+            sx={{
+                alignItems: "center",
+                padding: "20px",
+            }}
+        >
+            <Typography variant="h4">✨ Yearify ✨</Typography>
+        </Box>
+    );
+}
+
 const LandingPage = () => {
     return (
-        <div style={{ width: "600px", margin: "0 auto", textAlign: "center" }}>
-            <h1>✨ Welcome to Yearify ✨</h1>
-            <p>
+        <Box
+            sx={{
+                maxWidth: "700px",
+                margin: "0 auto",
+                textAlign: "center",
+                padding: "40px 20px",
+            }}
+        >
+            <Header />
+            <Typography variant="body1" gutterBottom>
                 Yearify helps you rediscover your year through your Google Calendar events! 📅
-            </p>
-            <p>
+            </Typography>
+            <Typography variant="body1" gutterBottom>
                 We'll fetch your events from the past year, organize them, and turn them into a clear, colorful snapshot of your time. It's your year, visualized! 🖼️
-            </p>
-            <img src={`${process.env.PUBLIC_URL}/media/demo-image.png`} width={"500px"} alt="Demo visualization" />
-            <p>
+            </Typography>
+            <Box
+                component="img"
+                src={`${process.env.PUBLIC_URL}/media/demo-image.png`}
+                alt="Demo visualization"
+                sx={{
+                    width: "100%",
+                    maxWidth: "500px",
+                    height: "auto",
+                    margin: "20px 0",
+                }}
+            />
+            <Typography variant="body1">
                 Click the button below to connect your Google Calendar and get started today!
-            </p>
-            <Footer />
-        </div>
+            </Typography>
+        </Box>
     );
 };
+
 
 
 function Main() {
@@ -111,7 +154,7 @@ function Main() {
                 </>
             ) : (
                 <>
-                    <h1>Yearify</h1>
+                    <Header />
                     <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
                     <Box>
                         Calendar Events Count: {getAllEvents().length}
