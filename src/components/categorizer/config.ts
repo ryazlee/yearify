@@ -1,4 +1,28 @@
 export const CATEGORIES_KEYWORDS = {
+    travel: [
+        "flight", "travel", "vacation", "hotel", "trip",
+        "road trip", "cruise", "layover", "airport", "departure",
+        "arrival", "itinerary", "tour", "resort", "luggage",
+        "rental car", "station", "journey", "getaway",
+        "adventure", "backpacking", "holiday", "sightseeing",
+        "road trip", "overnight", "glamping", "staycation", "excursion",
+        "bus tour", "cabin", "hostel", "Airbnb", "resort",
+    ],
+
+    social: [
+        "party", "dinner", "event", "festival", "celebrate",
+        "housewarming", "call", "birthday", "gathering",
+        "hangout", "BBQ", "brunch", "reunion", "farewell",
+        "movie", "concert", "show", "play", "game night",
+        "club", "bar", "karaoke", "dance", "picnic",
+        "engagement", "wedding", "shower", "anniversary", "family reunion",
+        "baby shower", "graduation", "holiday party", "theatre",
+        "sporting event", "reception", "potluck", "friendsgiving",
+        "fundraiser", "baby announcement", "open house", "bonfire",
+        "tailgate", "cheer", "celebration", "hangout", "night out", "food", "dinner",
+        "lunch", "breakfast", "brunch", "happy hour", "social gathering", "movie", "film",
+        "concert", "show", "play", "theatre", "performance", "game night", "board games",
+    ],
     fitness: [
         "gym", "yoga", "workout", "game", "tryout", "practice", "training",
         "match", "tournament", "league", "pickleball", "spinning", "boxing",
@@ -14,20 +38,6 @@ export const CATEGORIES_KEYWORDS = {
         "ultimate frisbee", "spikeball", "cornhole", "dodgeball", "kickball", "spike",
         "hiking", "running", "jogging", "jog", "walking", "biking", "cycling",
     ],
-    social: [
-        "party", "dinner", "event", "festival", "celebrate",
-        "housewarming", "call", "birthday", "gathering",
-        "hangout", "BBQ", "brunch", "reunion", "farewell",
-        "movie", "concert", "show", "play", "game night",
-        "club", "bar", "karaoke", "dance", "picnic",
-        "engagement", "wedding", "shower", "anniversary", "family reunion",
-        "baby shower", "graduation", "holiday party", "theatre",
-        "sporting event", "reception", "potluck", "friendsgiving",
-        "fundraiser", "baby announcement", "open house", "bonfire",
-        "tailgate", "cheer", "celebration", "hangout", "night out", "food", "dinner",
-        "lunch", "breakfast", "brunch", "happy hour", "social gathering", "movie", "film",
-        "concert", "show", "play", "theatre", "performance", "game night", "board games",
-    ],
     personal: [
         "appointment", "errand", "family", "doctor", "pet",
         "therapy", "dentist", "optometrist", "spa", "massage",
@@ -42,23 +52,5 @@ export const CATEGORIES_KEYWORDS = {
         "counseling", "doctor's visit", "dentist appointment",
         "physical therapy", "health check-up", "emergency", "doc", "physician",
     ],
-    travel: [
-        "flight", "travel", "vacation", "check-in", "hotel", "trip",
-        "road trip", "cruise", "layover", "airport", "departure",
-        "arrival", "itinerary", "tour", "resort", "luggage",
-        "rental car", "train", "station", "journey", "getaway",
-        "adventure", "backpacking", "holiday", "exploration", "sightseeing",
-        "road trip", "overnight", "glamping", "staycation", "excursion",
-        "bus tour", "cabin", "hostel", "Airbnb", "resort", "stay"
-    ],
+    uncategorized: []
 };
-
-export const FUSE_OPTIONS = {
-    includeScore: true,
-    includeMatches: true,
-    isCaseSensitive: false,
-    threshold: 0.45,
-    findAllMatches: true,
-    ignoreLocation: true,
-    distance: 800
-}

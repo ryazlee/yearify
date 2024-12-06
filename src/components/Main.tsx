@@ -14,7 +14,7 @@ const Footer = () => {
     return (
         <footer style={{
             position: 'fixed',
-            bottom: 10,
+            bottom: 5,
             right: 10,
         }}>
             <a href="https://ryazlee.github.io/yearify/legal/privacy-policy.txt" >
@@ -26,24 +26,23 @@ const Footer = () => {
 
 const LandingPage = () => {
     return (
-        <Box maxWidth={700} margin={"0 auto"}>
-            <h1>Yearify</h1>
+        <div style={{ width: "600px", margin: "0 auto", textAlign: "center" }}>
+            <h1>✨ Welcome to Yearify ✨</h1>
             <p>
-                Welcome to Yearify!
+                Yearify helps you rediscover your year through your Google Calendar events! 📅
             </p>
             <p>
-                Yearify is a data visualization tool that helps you visualize how you spent your year! 📅
-                <br />
-                This app will fetch all your events over the past year in Google Calendar and will categorize them to build a visual representation of your year (such as the image below).
+                We'll fetch your events from the past year, organize them, and turn them into a clear, colorful snapshot of your time. It's your year, visualized! 🖼️
             </p>
-            <img src={`${process.env.PUBLIC_URL}/media/demo-image.png`} width={"500px"} />
+            <img src={`${process.env.PUBLIC_URL}/media/demo-image.png`} width={"500px"} alt="Demo visualization" />
             <p>
-                To get started, click the button below to authenticate with Google Calendar.
+                Click the button below to connect your Google Calendar and get started today!
             </p>
             <Footer />
-        </Box>
+        </div>
     );
 };
+
 
 function Main() {
     const [authenticated, setAuthenticated] = useState(false);

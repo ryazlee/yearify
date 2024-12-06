@@ -1,6 +1,5 @@
-import Fuse from "fuse.js";
-import { CATEGORIES_KEYWORDS, FUSE_OPTIONS } from "./config";
 import { CalendarEvent, CategorizedEvents } from "../types";
+import { CATEGORIES_KEYWORDS } from "./config";
 
 export function categorizeEvents(events: CalendarEvent[]): CategorizedEvents {
     const categorized: CategorizedEvents = {
@@ -12,29 +11,30 @@ export function categorizeEvents(events: CalendarEvent[]): CategorizedEvents {
     };
 
     events.forEach((event) => {
-        let matched = false;
+        const summary = event.summary?.toLowerCase();
+        const description = event.description?.toLowerCase();
+        const location = event.location?.toLowerCase();
 
-        if (!event.summary) {
-            event.category = "uncategorized";
-            categorized.uncategorized.push(event);
-            return;
-        }
+        if (summary || description || location) {
+            let categorizedFlag = false;
+            Object.keys(categorized).forEach((category) => {
+                const categoryKey = category as keyof typeof categorized;
+                if (categorizedFlag) {
+                    return;
+                }
 
-        for (const [category, keywords] of Object.entries(CATEGORIES_KEYWORDS)) {
-            const fuse = new Fuse(keywords, FUSE_OPTIONS);
-            const result = fuse.search(event.summary);
+                const keywords = CATEGORIES_KEYWORDS[categoryKey];
+                if (keywords.some((keyword) => summary?.includes(keyword) || description?.includes(keyword) || location?.includes(keyword))) {
+                    categorized[categoryKey].push(event);
+                    event.category = categoryKey;
+                    categorizedFlag = true;
+                }
+            });
 
-            if (result.length > 0) {
-                event.category = category
-                categorized[category as keyof CategorizedEvents].push(event);
-                matched = true;
-                break;
+            if (!categorizedFlag) {
+                categorized.uncategorized.push(event);
+                event.category = "uncategorized";
             }
-        }
-
-        if (!matched) {
-            event.category = "uncategorized";
-            categorized.uncategorized.push(event);
         }
     });
 
