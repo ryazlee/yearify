@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/yearify/static/css/main.322d6029.css",
-    "main.js": "/yearify/static/js/main.e99b592e.js",
+    "main.js": "/yearify/static/js/main.38571bc5.js",
     "static/js/453.4c2033ce.chunk.js": "/yearify/static/js/453.4c2033ce.chunk.js",
     "index.html": "/yearify/index.html",
     "main.322d6029.css.map": "/yearify/static/css/main.322d6029.css.map",
-    "main.e99b592e.js.map": "/yearify/static/js/main.e99b592e.js.map",
+    "main.38571bc5.js.map": "/yearify/static/js/main.38571bc5.js.map",
     "453.4c2033ce.chunk.js.map": "/yearify/static/js/453.4c2033ce.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.322d6029.css",
-    "static/js/main.e99b592e.js"
+    "static/js/main.38571bc5.js"
   ]
 }
