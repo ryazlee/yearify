@@ -10,18 +10,38 @@ import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
 import { FormControlLabel, Switch } from "@mui/material";
 
-
 const Footer = () => {
     return (
         <footer style={{
             position: 'fixed',
-            bottom: 5,
+            bottom: 10,
             right: 10,
         }}>
             <a href="https://ryazlee.github.io/yearify/legal/privacy-policy.txt" >
                 Privacy Policy
             </a>
         </footer >
+    );
+};
+
+const LandingPage = () => {
+    return (
+        <Box maxWidth={700} margin={"0 auto"}>
+            <h1>Yearify</h1>
+            <p>
+                Welcome to Yearify!
+            </p>
+            <p>
+                Yearify is a data visualization tool that helps you visualize how you spent your year! 📅
+                <br />
+                This app will fetch all your events over the past year in Google Calendar and will categorize them to build a visual representation of your year (such as the image below).
+            </p>
+            <img src={`${process.env.PUBLIC_URL}/media/demo-image.png`} width={"500px"} />
+            <p>
+                To get started, click the button below to authenticate with Google Calendar.
+            </p>
+            <Footer />
+        </Box>
     );
 };
 
@@ -51,7 +71,7 @@ function Main() {
             }
         }
         return events;
-    }
+    };
 
     const fetchCalendarEvents = async () => {
         try {
@@ -81,22 +101,26 @@ function Main() {
     const onUpdateCategoriesHandler = (categorizedEvents: CategorizedEvents) => {
         setCategorizedEvents(categorizedEvents);
         setAllEvents(getAllEvents());
-    }
+    };
 
     return (
-        <>
-            <h1>Yearify</h1>
-            <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
-            {authenticated && (
+        <div>
+            {!authenticated ? (
                 <>
-                    <button onClick={fetchCalendarEvents}>
-                        Get Events
-                    </button>
+                    <LandingPage />
+                    <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
+                </>
+            ) : (
+                <>
+                    <h1>Yearify</h1>
+                    <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
                     <Box>
                         Calendar Events Count: {getAllEvents().length}
                     </Box>
-                    {categorizedEvents && <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />}
-                    {categorizedEvents &&
+                    {categorizedEvents && (
+                        <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />
+                    )}
+                    {categorizedEvents && (
                         <>
                             <FormControlLabel
                                 control={
@@ -114,11 +138,11 @@ function Main() {
                                 {showStats && <UserStats calendarEvents={allEvents} />}
                             </DownloadableComponent>
                         </>
-                    }
+                    )}
                 </>
             )}
             <Footer />
-        </>
+        </div>
     );
 }
 
