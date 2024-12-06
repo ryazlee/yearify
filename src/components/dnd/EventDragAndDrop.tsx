@@ -157,12 +157,11 @@ export const EventDragAndDrop = ({
     };
 
     const columnStyle: CSSProperties = {
-        maxWidth: '250px',
+        minWidth: '200px',
         maxHeight: '400px',
         padding: '8px',
         borderRadius: '8px',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        marginBottom: '10px',
         overflowY: 'auto',
     };
 

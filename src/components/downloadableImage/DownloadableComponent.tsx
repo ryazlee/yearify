@@ -37,22 +37,39 @@ const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
 
     const handleShare = async () => {
         const blob = await captureImage();
-        if (blob && navigator.share) {
+        if (blob) {
             const fileName = `yearify-image-${new Date().toISOString()}.png`;
             const file = new File([blob], fileName, { type: "image/png" });
 
-            try {
-                await navigator.share({
-                    files: [file],
-                    title: "Yearify Image",
-                    text: "Check out my Yearify image!",
-                });
-            } catch (error) {
-                console.error("Error sharing the image:", error);
-                alert("Unable to share image. Please try again.");
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                    });
+                } catch (error) {
+                    console.error("Error sharing the image:", error);
+                    alert("Unable to share image. Please try again or view in a new window.");
+                }
+            } else {
+                alert("File sharing is not supported on this browser.");
+                handleDownload(); // Fallback to download
             }
-        } else {
-            handleDownload();
+        }
+    };
+
+    const handleViewInNewWindow = async () => {
+        const blob = await captureImage();
+        if (blob) {
+            const imageURL = URL.createObjectURL(blob);
+            const newWindow = window.open();
+            if (newWindow) {
+                newWindow.document.write(
+                    `<html><head><title>Yearify Image</title></head><body style="margin:0;"><img src="${imageURL}" style="width:100%; height:auto;" /></body></html>`
+                );
+                newWindow.document.close();
+            } else {
+                alert("Unable to open a new window. Please allow pop-ups in your browser.");
+            }
         }
     };
 
@@ -61,6 +78,7 @@ const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
             <Box style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
                 <button onClick={handleShare} style={buttonStyle}>Share Image</button>
                 <button onClick={handleDownload} style={buttonStyle}>Download Image</button>
+                <button onClick={handleViewInNewWindow} style={buttonStyle}>View in New Window</button>
             </Box>
             <Box
                 ref={componentRef}
