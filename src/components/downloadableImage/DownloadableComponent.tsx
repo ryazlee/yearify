@@ -5,58 +5,84 @@ import { Box } from "@mui/material";
 const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
     const componentRef = useRef<HTMLDivElement>(null);
 
+    const captureImage = async () => {
+        if (!componentRef.current) return null;
+
+        try {
+            const canvas = await html2canvas(componentRef.current, {
+                scale: 2,
+                useCORS: true,
+            });
+            return new Promise<Blob | null>((resolve) =>
+                canvas.toBlob((blob) => resolve(blob), "image/png")
+            );
+        } catch (error) {
+            console.error("Error capturing the image:", error);
+            alert("Unable to generate image. Please try again.");
+            return null;
+        }
+    };
+
     const handleDownload = async () => {
-        if (componentRef.current) {
+        const blob = await captureImage();
+        if (blob) {
+            const fileName = `yearify-image-${new Date().toISOString()}.png`;
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = fileName;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+    };
+
+    const handleShare = async () => {
+        const blob = await captureImage();
+        if (blob && navigator.share) {
+            const fileName = `yearify-image-${new Date().toISOString()}.png`;
+            const file = new File([blob], fileName, { type: "image/png" });
+
             try {
-                const canvas = await html2canvas(componentRef.current, {
-                    scale: 2, // Higher resolution for better quality
-                    useCORS: true, // Handle cross-origin images
+                await navigator.share({
+                    files: [file],
+                    title: "Yearify Image",
+                    text: "Check out my Yearify image!",
                 });
-
-                const image = canvas.toDataURL("image/png");
-
-                const link = document.createElement("a");
-                link.href = image;
-                const date = new Date();
-                link.download = `yearify-image-${date.toISOString()}.png`;
-
-                link.click();
             } catch (error) {
-                console.error("Error capturing the image:", error);
-                alert("Unable to download image. Please try again.");
+                console.error("Error sharing the image:", error);
+                alert("Unable to share image. Please try again.");
             }
+        } else {
+            handleDownload();
         }
     };
 
     return (
         <Box style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center" }}>
-            {/* Button above the component */}
-            <button
-                onClick={handleDownload}
-                style={{
-                    fontSize: "16px",
-                    cursor: "pointer",
-                    marginBottom: "20px", // Add margin to separate from the component below
-                }}
-            >
-                Download as PNG
-            </button>
-
+            <Box style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
+                <button onClick={handleShare} style={buttonStyle}>Share Image</button>
+                <button onClick={handleDownload} style={buttonStyle}>Download Image</button>
+            </Box>
             <Box
                 ref={componentRef}
                 style={{
                     border: "1px solid #ddd",
                     backgroundColor: "white",
                     boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
-                    display: "inline-block", // Ensures proper bounding box
+                    display: "inline-block",
                     padding: "20px",
-                    borderRadius: "8px", // Optional: Adds rounded corners
+                    borderRadius: "8px",
                 }}
             >
                 {children}
             </Box>
         </Box>
     );
+};
+
+const buttonStyle = {
+    fontSize: "16px",
+    cursor: "pointer",
+    padding: "10px 20px",
 };
 
 export default DownloadableComponent;
