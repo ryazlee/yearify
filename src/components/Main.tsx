@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { CalendarEvent, CategorizedEvents } from "./types";
 import { api } from "../api";
 import { categorizeEvents } from "./categorizer/utils";
@@ -8,124 +8,102 @@ import { AuthButton } from "./auth/AuthButton";
 import { CalendarGrid } from "./calendar/CalendarGrid";
 import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
-import { FormControlLabel, Link, Switch, Typography } from "@mui/material";
+import { Button, FormControlLabel, Link, Switch, Typography } from "@mui/material";
+import { CategorizerModal } from "./dnd/CategorizerModal";
 
-const Footer = () => {
-    return (
-        <Box
-            component="footer"
+const Footer = () => (
+    <Box
+        component="footer"
+        sx={{
+            textAlign: 'center',
+            padding: '2rem 0',
+        }}
+    >
+        <Link
+            href={`${process.env.PUBLIC_URL}/legal/privacy-policy.txt`}
+            underline="hover"
+            color="textSecondary"
+            target="_blank"
+            rel="noopener"
             sx={{
-                textAlign: 'center',
-                padding: '2rem 0',
+                fontSize: '0.75rem',
+                marginRight: '1rem',
             }}
         >
-            <Link
-                href="https://ryazlee.github.io/yearify/legal/privacy-policy.txt"
-                underline="hover"
-                color="textSecondary"
-                target="_blank"
-                rel="noopener"
-                sx={{
-                    fontSize: '0.75rem',
-                    marginRight: '1rem',
-                }}
-            >
-                Privacy Policy
-            </Link>
-            <Link
-                href="https://ryazlee.github.io/yearify/legal/terms-of-service.txt"
-                underline="hover"
-                color="textSecondary"
-                target="_blank"
-                rel="noopener"
-                sx={{
-                    fontSize: '0.75rem',
-                }}
-            >
-                Terms of Service
-            </Link>
-        </Box>
-    );
-};
-
-const Header = () => {
-    return (
-        <Box
-            component="header"
+            Privacy Policy
+        </Link>
+        <Link
+            href={`${process.env.PUBLIC_URL}/legal/terms-of-service.txt`}
+            underline="hover"
+            color="textSecondary"
+            target="_blank"
+            rel="noopener"
             sx={{
-                alignItems: "center",
-                padding: "20px",
+                fontSize: '0.75rem',
             }}
         >
-            <Typography variant="h4">✨ Yearify ✨</Typography>
-        </Box>
-    );
-}
+            Terms of Service
+        </Link>
+    </Box>
+);
 
-const LandingPage = () => {
-    return (
+const Header = () => (
+    <Box
+        component="header"
+        sx={{
+            alignItems: "center",
+            padding: "20px",
+        }}
+    >
+        <Typography variant="h4">✨ Yearify ✨</Typography>
+    </Box>
+);
+
+const LandingPage = () => (
+    <Box
+        sx={{
+            maxWidth: "700px",
+            margin: "0 auto",
+            textAlign: "center",
+            padding: "40px 20px",
+        }}
+    >
+        <Header />
+        <Typography variant="body1" gutterBottom>
+            Yearify helps you rediscover your year through your Google Calendar events! 📅
+        </Typography>
+        <Typography variant="body1" gutterBottom>
+            We'll fetch your events from the past year, organize them, and turn them into a clear, colorful snapshot of your time. It's your year, visualized! 🖼️
+        </Typography>
         <Box
+            component="img"
+            src={`${process.env.PUBLIC_URL}/media/demo-image.png`}
+            alt="Demo visualization"
             sx={{
-                maxWidth: "700px",
-                margin: "0 auto",
-                textAlign: "center",
-                padding: "40px 20px",
+                width: "100%",
+                maxWidth: "500px",
+                height: "auto",
+                margin: "20px 0",
             }}
-        >
-            <Header />
-            <Typography variant="body1" gutterBottom>
-                Yearify helps you rediscover your year through your Google Calendar events! 📅
-            </Typography>
-            <Typography variant="body1" gutterBottom>
-                We'll fetch your events from the past year, organize them, and turn them into a clear, colorful snapshot of your time. It's your year, visualized! 🖼️
-            </Typography>
-            <Box
-                component="img"
-                src={`${process.env.PUBLIC_URL}/media/demo-image.png`}
-                alt="Demo visualization"
-                sx={{
-                    width: "100%",
-                    maxWidth: "500px",
-                    height: "auto",
-                    margin: "20px 0",
-                }}
-            />
-            <Typography variant="body1">
-                Click the button below to connect your Google Calendar and get started today!
-            </Typography>
-        </Box>
-    );
-};
+        />
+        <Typography variant="body1">
+            Click the button below to connect your Google Calendar and get started today!
+        </Typography>
+    </Box>
+);
 
 function Main() {
     const [authenticated, setAuthenticated] = useState(false);
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
-    const [allEvents, setAllEvents] = useState<CalendarEvent[]>([]);
     const [showStats, setShowStats] = useState(false);
+    const [showCategorizerModal, setShowCategorizerModal] = useState(false);
 
-    useEffect(() => {
-        if (authenticated) {
-            fetchCalendarEvents();
-        }
-    }, [authenticated]);
-
-    useEffect(() => {
-        if (categorizedEvents) {
-            setAllEvents(getAllEvents());
-        }
+    const allEvents = useMemo(() => {
+        if (!categorizedEvents) return [];
+        return Object.values(categorizedEvents).flat();
     }, [categorizedEvents]);
 
-    const getAllEvents = () => {
-        const events: CalendarEvent[] = [];
-        if (categorizedEvents) {
-            for (const [_, eventsInCategory] of Object.entries(categorizedEvents)) {
-                events.push(...eventsInCategory);
-            }
-        }
-        return events;
-    };
-
-    const fetchCalendarEvents = async () => {
+    const fetchCalendarEvents = useCallback(async () => {
         try {
             const events = await api.getCalendarEvents();
             const calendarEvents: CalendarEvent[] = events.map((event: any) => {
@@ -143,16 +121,20 @@ function Main() {
                     location: event.location,
                 };
             });
-            const categorizedEvents = categorizeEvents(calendarEvents);
-            setCategorizedEvents(categorizedEvents);
+            setCategorizedEvents(categorizeEvents(calendarEvents));
         } catch (error) {
             console.error("Error fetching events:", error);
         }
-    };
+    }, []);
 
-    const onUpdateCategoriesHandler = (categorizedEvents: CategorizedEvents) => {
-        setCategorizedEvents(categorizedEvents);
-        setAllEvents(getAllEvents());
+    useEffect(() => {
+        if (authenticated) {
+            fetchCalendarEvents();
+        }
+    }, [authenticated, fetchCalendarEvents]);
+
+    const onUpdateCategoriesHandler = (updatedCategorizedEvents: CategorizedEvents) => {
+        setCategorizedEvents(updatedCategorizedEvents);
     };
 
     return (
@@ -160,18 +142,29 @@ function Main() {
             {!authenticated ? (
                 <>
                     <LandingPage />
-                    <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
+                    <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(true)} />
                     <Footer />
                 </>
             ) : (
                 <>
                     <Header />
-                    <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(!authenticated)} />
+                    <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(false)} />
                     <Box>
-                        Calendar Events Count: {getAllEvents().length}
+                        Calendar Events Count: {allEvents.length}
                     </Box>
                     {categorizedEvents && (
-                        <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />
+                        <>
+                            <CategorizerModal
+                                initialCategorizedEvents={categorizedEvents}
+                                setCategories={onUpdateCategoriesHandler}
+                                isOpen={showCategorizerModal}
+                                onModalClose={() => setShowCategorizerModal(false)}
+                            />
+                            <Button onClick={() => setShowCategorizerModal(true)} variant="contained" color="primary">
+                                Categorize Uncategorized Events
+                            </Button>
+                            <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />
+                        </>
                     )}
                     {categorizedEvents && (
                         <>
@@ -187,8 +180,8 @@ function Main() {
                                 label={showStats ? "Hide Stats" : "Show Stats"}
                             />
                             <DownloadableComponent>
-                                <CalendarGrid calendarEvents={allEvents} />
-                                {showStats && <UserStats calendarEvents={allEvents} />}
+                                <CalendarGrid categorizedEvents={categorizedEvents} />
+                                {showStats && <UserStats categorizedEvents={categorizedEvents} />}
                             </DownloadableComponent>
                         </>
                     )}

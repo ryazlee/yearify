@@ -1,5 +1,5 @@
 import { Box, Typography, Grid2 as Grid } from '@mui/material';
-import { CalendarEvent, CATEGORY_COLORS, DayProps, MONTHS_DATA } from '../types';
+import { CalendarEvent, CategorizedEvents, CATEGORY_COLORS, DayProps, MONTHS_DATA } from '../types';
 import { ColorLegend } from './ColorLegend';
 
 const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarEvent[], isEmpty: boolean }) => {
@@ -71,16 +71,18 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
 
     return (
         <Grid container width={'130px'}>
-            {allDays.map(day =>
-                <Grid>
+            {allDays.map((day, index) => (
+                <Grid key={`${day.month}-${day.num}-${index}`}>
                     <DateSquare day={day} events={calendarEvents} isEmpty={day.isEmpty} />
                 </Grid>
-            )}
+            ))}
         </Grid>
     )
 };
 
-export const CalendarGrid = ({ calendarEvents }: { calendarEvents: CalendarEvent[] }) => {
+export const CalendarGrid = ({ categorizedEvents }: { categorizedEvents: CategorizedEvents }) => {
+    const calendarEvents = Object.values(categorizedEvents).flat();
+
     return (
         <Box style={{
             display: 'flex',

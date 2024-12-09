@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     DragDropContext,
     Droppable,
@@ -79,13 +79,15 @@ export const EventDragAndDrop = ({
         initialCategories
     );
 
+    useEffect(() => {
+        setCategories(initialCategories);
+    }, [initialCategories]);
+
     const onDragEnd = (result: DropResult) => {
         const { source, destination } = result;
 
-        // If dropped outside any droppable area, do nothing
         if (!destination) return;
 
-        // If dropped in the same position, do nothing
         if (
             source.droppableId === destination.droppableId &&
             source.index === destination.index
@@ -93,27 +95,21 @@ export const EventDragAndDrop = ({
             return;
         }
 
-        // Create a deep copy of the categories
         const updatedCategories = JSON.parse(JSON.stringify(categories));
-
         const sourceColumn = updatedCategories[source.droppableId];
         const destinationColumn = updatedCategories[destination.droppableId];
         const [movedItem] = sourceColumn.splice(source.index, 1);
 
-        // If moving within the same column
         if (source.droppableId === destination.droppableId) {
             sourceColumn.splice(destination.index, 0, movedItem);
         } else {
-            // If moving to a different column
             movedItem.category = destination.droppableId;
             destinationColumn.splice(destination.index, 0, movedItem);
         }
 
-        // Update the state
         setCategories(updatedCategories);
         onUpdateCategories(updatedCategories);
     };
-
 
     const onDeleteCallbackHandler = (id: string) => {
         const updatedCategories = { ...categories };
