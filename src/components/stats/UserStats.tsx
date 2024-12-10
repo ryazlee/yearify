@@ -1,5 +1,5 @@
 import { Typography } from "@mui/material";
-import { CategorizedEvents } from "../types";
+import { Category, CategorizedEvents } from "../types";
 
 const UserStats = ({ categorizedEvents }: { categorizedEvents: CategorizedEvents }) => {
     return (
@@ -7,7 +7,7 @@ const UserStats = ({ categorizedEvents }: { categorizedEvents: CategorizedEvents
             {Object.keys(categorizedEvents).filter(category => category !== 'uncategorized').map((category) => (
                 <div key={category}>
                     <Typography sx={{ fontSize: 8 }}>
-                        {category}: {categorizedEvents[category as keyof CategorizedEvents].length}
+                        {category}: {categorizedEvents[category as Category].length}
                     </Typography>
                 </div>
             ))}

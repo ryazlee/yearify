@@ -149,14 +149,13 @@ function Main() {
                 <>
                     <Header />
                     <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(false)} />
-                    <Box>
-                        Calendar Events Count: {allEvents.length}
-                    </Box>
-                    <Typography sx={{ fontStyle: 'italic' }}>
-                        Click the <ModeEditIcon fontSize="small" /> icon to categorize events!
-                    </Typography>
+
+
                     {categorizedEvents && (
                         <>
+                            <Typography marginTop={2} sx={{ fontStyle: 'italic' }}>
+                                Drag and drop or click the <ModeEditIcon fontSize="small" /> icon to categorize events!
+                            </Typography>
                             <EventDragAndDrop
                                 initialCategories={categorizedEvents}
                                 onUpdateCategories={onUpdateCategoriesHandler}

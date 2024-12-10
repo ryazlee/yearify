@@ -55,3 +55,7 @@ export type CategorizedEvents = {
     personal: CalendarEvent[];
     uncategorized: CalendarEvent[];
 };
+
+export type Category = keyof CategorizedEvents;
+
+export const CATEGORIES = Object.keys(CATEGORY_COLORS) as Category[];

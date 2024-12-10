@@ -7,7 +7,7 @@ import {
 } from "react-beautiful-dnd";
 import { Box, Typography, IconButton, Paper, Icon } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { CalendarEvent, CategorizedEvents, CATEGORY_COLORS } from "../types";
+import { CalendarEvent, Category, CategorizedEvents, CATEGORY_COLORS } from "../types";
 import { CategorizerModal } from "./CategorizerModal";
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
@@ -80,7 +80,7 @@ export const EventDragAndDrop = ({
         initialCategories
     );
     const [categorizerModalOpen, setCategorizerModalOpen] = useState(false);
-    const [categoryToCategorize, setCategoryToCategorize] = useState<keyof CategorizedEvents>('uncategorized');
+    const [categoryToCategorize, setCategoryToCategorize] = useState<Category>('uncategorized');
 
     useEffect(() => {
         setCategories(initialCategories);
@@ -117,7 +117,7 @@ export const EventDragAndDrop = ({
     const onDeleteCallbackHandler = (id: string) => {
         const updatedCategories = { ...categories };
         for (const category in updatedCategories) {
-            updatedCategories[category as keyof CategorizedEvents] = updatedCategories[category as keyof CategorizedEvents].filter(
+            updatedCategories[category as Category] = updatedCategories[category as Category].filter(
                 (event) => event.id !== id
             );
         }
@@ -126,9 +126,17 @@ export const EventDragAndDrop = ({
         onUpdateCategories(updatedCategories);
     };
 
-    const onClickCategorizer = (category: keyof CategorizedEvents) => {
+    const onClickCategorizer = (category: Category) => {
         setCategorizerModalOpen(true);
         setCategoryToCategorize(category);
+    }
+
+    const getAllEventCount = () => {
+        let count = 0;
+        for (const category in categories) {
+            count += categories[category as Category].length;
+        }
+        return count;
     }
 
     return (
@@ -180,10 +188,10 @@ export const EventDragAndDrop = ({
                                             borderRadius: 1,
                                         }}
                                     >
-                                        {columnId} ({calendarEvents.length})
+                                        {columnId} ({calendarEvents.length}/{getAllEventCount()})
                                         <IconButton
                                             size="small"
-                                            onClick={() => onClickCategorizer(columnId as keyof CategorizedEvents)}
+                                            onClick={() => onClickCategorizer(columnId as Category)}
                                         >
                                             <ModeEditIcon fontSize="small" />
                                         </IconButton>

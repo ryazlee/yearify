@@ -38,8 +38,5 @@ export function categorizeEvents(events: CalendarEvent[]): CategorizedEvents {
         }
     });
 
-    console.info("Categorized Events:", categorized);
-    console.info("Count of events in categorized", Object.values(categorized).reduce((acc, val) => acc + val.length, 0));
-
     return categorized
 }

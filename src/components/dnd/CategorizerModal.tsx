@@ -1,22 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { CategorizedEvents } from "../types";
+import { Category, CategorizedEvents, CATEGORIES } from "../types";
 import { Modal, Box, Button, Typography, IconButton } from "@mui/material";
 import LinkIcon from '@mui/icons-material/Link';
 
 const CategorizationButtons = ({
     onCategorySelect,
+    intialCategory,
 }: {
-    onCategorySelect: (category: keyof CategorizedEvents) => void;
+    onCategorySelect: (category: Category) => void;
+    intialCategory: Category;
 }) => {
     return (
         <Box display="flex" gap="10px" flexWrap="wrap" justifyContent="center" marginBottom="20px">
-            {["travel", "fitness", "social", "personal"].map((category) => (
+            {CATEGORIES.map((category) => (
                 <Button
                     key={category}
+                    disabled={category === intialCategory}
                     variant="contained"
                     color="primary"
                     size="small"
-                    onClick={() => onCategorySelect(category as keyof CategorizedEvents)}
+                    onClick={() => onCategorySelect(category as Category)}
                 >
                     {category.charAt(0).toUpperCase() + category.slice(1)}
                 </Button>
@@ -32,7 +35,7 @@ const EventCategorizer = ({
 }: {
     categorizedEvents: CategorizedEvents;
     setCategorizedEvents: React.Dispatch<React.SetStateAction<CategorizedEvents>>;
-    initialCategory: keyof CategorizedEvents;
+    initialCategory: Category;
 }) => {
     const [currIndex, setCurrIndex] = useState(0);
     const [currEvent, setCurrEvent] = useState(categorizedEvents[initialCategory][currIndex]);
@@ -47,7 +50,7 @@ const EventCategorizer = ({
         }
     };
 
-    const categorizeEvent = (category: keyof CategorizedEvents) => {
+    const categorizeEvent = (category: Category) => {
         if (!currEvent) return;
 
         const updatedCurrEvent = { ...currEvent, category };
@@ -81,7 +84,7 @@ const EventCategorizer = ({
             <Typography variant="body2" marginBottom="20px">
                 {(new Date(currEvent.start)).toLocaleDateString()} - {(new Date(currEvent.end)).toLocaleDateString()}
             </Typography>
-            <CategorizationButtons onCategorySelect={categorizeEvent} />
+            <CategorizationButtons onCategorySelect={categorizeEvent} intialCategory={initialCategory} />
             <Button
                 variant="outlined"
                 color="primary"
@@ -108,7 +111,7 @@ export const CategorizerModal = ({
     onModalClose: () => void;
     initialCategorizedEvents: CategorizedEvents;
     setCategories: (categorizedEvents: CategorizedEvents) => void;
-    category: keyof CategorizedEvents;
+    category: Category;
 }) => {
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents>({ ...initialCategorizedEvents });
 
