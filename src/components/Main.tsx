@@ -5,7 +5,7 @@ import { categorizeEvents } from "./categorizer/utils";
 import DownloadableComponent from "./downloadableImage/DownloadableComponent";
 import { EventDragAndDrop } from "./dnd/EventDragAndDrop";
 import { AuthButton } from "./auth/AuthButton";
-import { CalendarGrid } from "./calendar/CalendarGrid";
+import { CalendarGrid, CalendarGridWaterMark } from "./calendar/CalendarGrid";
 import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
 import { FormControlLabel, Link, Switch, Typography } from "@mui/material";
@@ -174,6 +174,7 @@ function Main() {
                             <DownloadableComponent>
                                 <CalendarGrid categorizedEvents={categorizedEvents} />
                                 {showStats && <UserStats categorizedEvents={categorizedEvents} />}
+                                <CalendarGridWaterMark />
                             </DownloadableComponent>
                         </>
                     )}

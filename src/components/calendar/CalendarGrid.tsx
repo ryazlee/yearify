@@ -80,7 +80,7 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
     )
 };
 
-const CalendarGridWaterMark = () => {
+export const CalendarGridWaterMark = () => {
     return (
         <Box
             sx={{
@@ -136,7 +136,6 @@ export const CalendarGrid = ({ categorizedEvents }: { categorizedEvents: Categor
                     <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
                 </Box >
             </Box>
-            <CalendarGridWaterMark />
         </Box>
     );
 }
