@@ -154,15 +154,17 @@ function Main() {
                     </Box>
                     {categorizedEvents && (
                         <>
+                            <Button onClick={() => setShowCategorizerModal(true)} variant="contained" color="primary">
+                                Categorize Events
+                            </Button>
                             <CategorizerModal
                                 initialCategorizedEvents={categorizedEvents}
                                 setCategories={onUpdateCategoriesHandler}
                                 isOpen={showCategorizerModal}
                                 onModalClose={() => setShowCategorizerModal(false)}
+                                category="fitness" // Replace with the desired category
                             />
-                            <Button onClick={() => setShowCategorizerModal(true)} variant="contained" color="primary">
-                                Categorize Uncategorized Events
-                            </Button>
+
                             <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />
                         </>
                     )}

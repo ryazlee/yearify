@@ -24,22 +24,24 @@ const CategorizationButtons = ({
     );
 };
 
-const UncategorizedEventCategorizer = ({
+const EventCategorizer = ({
     categorizedEvents,
     setCategorizedEvents,
+    initialCategory,
 }: {
     categorizedEvents: CategorizedEvents;
     setCategorizedEvents: React.Dispatch<React.SetStateAction<CategorizedEvents>>;
+    initialCategory: keyof CategorizedEvents;
 }) => {
     const [currIndex, setCurrIndex] = useState(0);
-    const [currEvent, setCurrEvent] = useState(categorizedEvents.uncategorized[currIndex]);
+    const [currEvent, setCurrEvent] = useState(categorizedEvents[initialCategory][currIndex]);
 
     useEffect(() => {
-        setCurrEvent(categorizedEvents.uncategorized[currIndex]);
-    }, [currIndex, categorizedEvents.uncategorized]);
+        setCurrEvent(categorizedEvents[initialCategory][currIndex]);
+    }, [currIndex, categorizedEvents[initialCategory]]);
 
     const handleNextEvent = () => {
-        if (currIndex < categorizedEvents.uncategorized.length - 1) {
+        if (currIndex < categorizedEvents[initialCategory].length - 1) {
             setCurrIndex((prev) => prev + 1);
         }
     };
@@ -51,15 +53,16 @@ const UncategorizedEventCategorizer = ({
 
         const updatedEvents: CategorizedEvents = {
             ...categorizedEvents,
-            uncategorized: categorizedEvents.uncategorized.filter((_, index) => index !== currIndex),
+            [initialCategory]: categorizedEvents[initialCategory].filter((_, index) => index !== currIndex),
             [category]: [...categorizedEvents[category], updatedCurrEvent],
         };
 
         setCategorizedEvents(updatedEvents);
+        handleNextEvent();
     };
 
     if (!currEvent) {
-        return <Typography>No more uncategorized events!</Typography>;
+        return <Typography>No more events in the {initialCategory} category!</Typography>;
     }
 
     return (
@@ -82,7 +85,7 @@ const UncategorizedEventCategorizer = ({
                 color="primary"
                 size="small"
                 onClick={handleNextEvent}
-                disabled={currIndex >= categorizedEvents.uncategorized.length - 1}
+                disabled={currIndex >= categorizedEvents[initialCategory].length - 1}
             >
                 Skip Event
             </Button>
@@ -90,16 +93,20 @@ const UncategorizedEventCategorizer = ({
     );
 };
 
+export default EventCategorizer;
+
 export const CategorizerModal = ({
     isOpen,
     onModalClose,
     initialCategorizedEvents,
     setCategories,
+    category,
 }: {
     isOpen: boolean;
     onModalClose: () => void;
     initialCategorizedEvents: CategorizedEvents;
     setCategories: (categorizedEvents: CategorizedEvents) => void;
+    category: keyof CategorizedEvents;
 }) => {
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents>({ ...initialCategorizedEvents });
 
@@ -123,9 +130,10 @@ export const CategorizerModal = ({
     return (
         <Modal open={isOpen} onClose={onModalClose}>
             <Box sx={style}>
-                <UncategorizedEventCategorizer
+                <EventCategorizer
                     categorizedEvents={categorizedEvents}
                     setCategorizedEvents={setCategorizedEvents}
+                    initialCategory={category}
                 />
                 <Box display="flex" justifyContent="space-between" marginTop="20px">
                     <Button variant="contained" color="primary" size="small" onClick={saveCategories}>
