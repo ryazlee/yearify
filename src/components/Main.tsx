@@ -8,8 +8,8 @@ import { AuthButton } from "./auth/AuthButton";
 import { CalendarGrid } from "./calendar/CalendarGrid";
 import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
-import { Button, FormControlLabel, Link, Switch, Typography } from "@mui/material";
-import { CategorizerModal } from "./dnd/CategorizerModal";
+import { FormControlLabel, Link, Switch, Typography } from "@mui/material";
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
 const Footer = () => (
     <Box
@@ -96,7 +96,6 @@ function Main() {
     const [authenticated, setAuthenticated] = useState(false);
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
     const [showStats, setShowStats] = useState(false);
-    const [showCategorizerModal, setShowCategorizerModal] = useState(false);
 
     const allEvents = useMemo(() => {
         if (!categorizedEvents) return [];
@@ -119,6 +118,7 @@ function Main() {
                     end: endDateTime.toISOString(),
                     description: event.description,
                     location: event.location,
+                    htmlLink: event.htmlLink
                 };
             });
             setCategorizedEvents(categorizeEvents(calendarEvents));
@@ -152,24 +152,15 @@ function Main() {
                     <Box>
                         Calendar Events Count: {allEvents.length}
                     </Box>
+                    <Typography sx={{ fontStyle: 'italic' }}>
+                        Click the <ModeEditIcon fontSize="small" /> icon to categorize events!
+                    </Typography>
                     {categorizedEvents && (
                         <>
-                            <Button onClick={() => setShowCategorizerModal(true)} variant="contained" color="primary">
-                                Categorize Events
-                            </Button>
-                            <CategorizerModal
-                                initialCategorizedEvents={categorizedEvents}
-                                setCategories={onUpdateCategoriesHandler}
-                                isOpen={showCategorizerModal}
-                                onModalClose={() => setShowCategorizerModal(false)}
-                                category="fitness" // Replace with the desired category
+                            <EventDragAndDrop
+                                initialCategories={categorizedEvents}
+                                onUpdateCategories={onUpdateCategoriesHandler}
                             />
-
-                            <EventDragAndDrop initialCategories={categorizedEvents} onUpdateCategories={onUpdateCategoriesHandler} />
-                        </>
-                    )}
-                    {categorizedEvents && (
-                        <>
                             <FormControlLabel
                                 control={
                                     <Switch

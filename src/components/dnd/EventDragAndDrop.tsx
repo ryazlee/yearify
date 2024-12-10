@@ -5,11 +5,12 @@ import {
     Draggable,
     DropResult,
 } from "react-beautiful-dnd";
-import { Box, Typography, IconButton, Paper } from "@mui/material";
+import { Box, Typography, IconButton, Paper, Icon } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CalendarEvent, CategorizedEvents, CATEGORY_COLORS } from "../types";
+import { CategorizerModal } from "./CategorizerModal";
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
 
-// Individual Event Component
 const EventComponent = ({
     calendarEvent,
     index,
@@ -78,6 +79,8 @@ export const EventDragAndDrop = ({
     const [categories, setCategories] = useState<CategorizedEvents>(
         initialCategories
     );
+    const [categorizerModalOpen, setCategorizerModalOpen] = useState(false);
+    const [categoryToCategorize, setCategoryToCategorize] = useState<keyof CategorizedEvents>('uncategorized');
 
     useEffect(() => {
         setCategories(initialCategories);
@@ -123,64 +126,84 @@ export const EventDragAndDrop = ({
         onUpdateCategories(updatedCategories);
     };
 
+    const onClickCategorizer = (category: keyof CategorizedEvents) => {
+        setCategorizerModalOpen(true);
+        setCategoryToCategorize(category);
+    }
+
     return (
-        <DragDropContext onDragEnd={onDragEnd}>
-            <Box
-                sx={{
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 2,
-                    p: 2,
-                    justifyContent: "center",
-                }}
-            >
-                {Object.entries(categories).map(([columnId, calendarEvents]) => (
-                    <Droppable key={columnId} droppableId={columnId}>
-                        {(provided) => (
-                            <Box
-                                ref={provided.innerRef}
-                                {...provided.droppableProps}
-                                sx={{
-                                    bgcolor: CATEGORY_COLORS[columnId],
-                                    p: 2,
-                                    flex: "1 1 300px",
-                                    maxWidth: 400,
-                                    height: 400,
-                                    borderRadius: 1,
-                                    boxShadow: 1,
-                                    overflowY: "auto",
-                                    "@media (max-width: 600px)": {
-                                        flex: "1 1 45%",
-                                    },
-                                }}
-                            >
-                                <Typography
-                                    variant="h6"
+        <>
+            <CategorizerModal
+                isOpen={categorizerModalOpen}
+                onModalClose={() => setCategorizerModalOpen(false)}
+                initialCategorizedEvents={initialCategories}
+                setCategories={onUpdateCategories}
+                category={categoryToCategorize}
+            />
+            <DragDropContext onDragEnd={onDragEnd}>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: 2,
+                        p: 2,
+                        justifyContent: "center",
+                    }}
+                >
+                    {Object.entries(categories).map(([columnId, calendarEvents]) => (
+                        <Droppable key={columnId} droppableId={columnId}>
+                            {(provided) => (
+                                <Box
+                                    ref={provided.innerRef}
+                                    {...provided.droppableProps}
                                     sx={{
-                                        mb: 2,
-                                        bgcolor: "background.default",
-                                        px: 1,
-                                        py: 0.5,
+                                        bgcolor: CATEGORY_COLORS[columnId],
+                                        p: 2,
+                                        flex: "1 1 300px",
+                                        maxWidth: 400,
+                                        height: 400,
                                         borderRadius: 1,
+                                        boxShadow: 1,
+                                        overflowY: "auto",
+                                        "@media (max-width: 600px)": {
+                                            flex: "1 1 45%",
+                                        },
                                     }}
                                 >
-                                    {columnId} ({calendarEvents.length})
-                                </Typography>
-                                {calendarEvents.map((calendarEvent, index) => (
-                                    <EventComponent
-                                        key={calendarEvent.id}
-                                        calendarEvent={calendarEvent}
-                                        index={index}
-                                        onDeleteCallback={onDeleteCallbackHandler}
-                                    />
-                                ))}
-                                {provided.placeholder}
-                            </Box>
-                        )}
-                    </Droppable>
-                ))}
-            </Box>
-        </DragDropContext>
+                                    <Typography
+                                        variant="h6"
+                                        sx={{
+                                            mb: 2,
+                                            bgcolor: "background.default",
+                                            px: 1,
+                                            py: 0.5,
+                                            borderRadius: 1,
+                                        }}
+                                    >
+                                        {columnId} ({calendarEvents.length})
+                                        <IconButton
+                                            size="small"
+                                            onClick={() => onClickCategorizer(columnId as keyof CategorizedEvents)}
+                                        >
+                                            <ModeEditIcon fontSize="small" />
+                                        </IconButton>
+                                    </Typography>
+                                    {calendarEvents.map((calendarEvent, index) => (
+                                        <EventComponent
+                                            key={calendarEvent.id}
+                                            calendarEvent={calendarEvent}
+                                            index={index}
+                                            onDeleteCallback={onDeleteCallbackHandler}
+                                        />
+                                    ))}
+                                    {provided.placeholder}
+                                </Box>
+                            )}
+                        </Droppable>
+                    ))}
+                </Box>
+            </DragDropContext>
+        </>
     );
 };
 

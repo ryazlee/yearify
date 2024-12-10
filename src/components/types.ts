@@ -30,6 +30,7 @@ export interface CalendarEvent {
     category?: string;
     description?: string;
     location?: string;
+    htmlLink?: string;
 }
 
 export interface MonthDataProps {

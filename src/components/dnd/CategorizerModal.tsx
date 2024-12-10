@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CategorizedEvents } from "../types";
-import { Modal, Box, Button, Typography } from "@mui/material";
+import { Modal, Box, Button, Typography, IconButton } from "@mui/material";
+import LinkIcon from '@mui/icons-material/Link';
 
 const CategorizationButtons = ({
     onCategorySelect,
@@ -58,7 +59,6 @@ const EventCategorizer = ({
         };
 
         setCategorizedEvents(updatedEvents);
-        handleNextEvent();
     };
 
     if (!currEvent) {
@@ -67,8 +67,10 @@ const EventCategorizer = ({
 
     return (
         <Box>
-            <Typography variant="h5" marginBottom="10px">
-                {currEvent.summary || "Unnamed Event"}
+            <Typography variant="h6" marginBottom="10px">
+                {currEvent.summary || "Unnamed Event"} <IconButton onClick={() => { window.open(currEvent.htmlLink) }}>
+                    <LinkIcon />
+                </IconButton>
             </Typography>
             <Typography variant="body1" marginBottom="10px" textOverflow={"ellipsis"}>
                 {currEvent.description || "No description available."}
@@ -136,10 +138,10 @@ export const CategorizerModal = ({
                     initialCategory={category}
                 />
                 <Box display="flex" justifyContent="space-between" marginTop="20px">
-                    <Button variant="contained" color="primary" size="small" onClick={saveCategories}>
+                    <Button variant="contained" color="secondary" size="small" onClick={saveCategories}>
                         Save Categories
                     </Button>
-                    <Button variant="outlined" color="primary" size="small" onClick={onModalClose}>
+                    <Button variant="outlined" color="secondary" size="small" onClick={onModalClose}>
                         Close
                     </Button>
                 </Box>
