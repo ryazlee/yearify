@@ -1,4 +1,4 @@
-import { Box, Typography, Grid2 as Grid } from '@mui/material';
+import { Box, Typography, Grid2 as Grid, Link } from '@mui/material';
 import { CalendarEvent, CategorizedEvents, CATEGORY_COLORS, DayProps, MONTHS_DATA } from '../types';
 import { ColorLegend } from './ColorLegend';
 
@@ -80,6 +80,37 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
     )
 };
 
+const CalendarGridWaterMark = () => {
+    return (
+        <Box
+            sx={{
+                position: 'relative',
+                width: '100%',
+                textAlign: 'center',
+                marginTop: '15px',
+                fontSize: '10px',
+                fontStyle: 'italic',
+                color: 'rgba(0, 0, 0, 0.3)', // Faint gray color
+            }}
+        >
+            Made by Yearify at{" "}
+            <Link
+                href="https://ryazlee.github.io/yearify/"
+                target="_blank"
+                rel="noopener noreferrer"
+                underline="none"
+                sx={{
+                    color: 'rgba(0, 0, 0, 0.3)', // Same faint gray color
+                    textDecoration: 'underline',
+                }}
+            >
+                https://ryazlee.github.io/yearify/
+            </Link>
+        </Box>
+    );
+};
+
+
 export const CalendarGrid = ({ categorizedEvents }: { categorizedEvents: CategorizedEvents }) => {
     const calendarEvents = Object.values(categorizedEvents).flat();
 
@@ -105,6 +136,7 @@ export const CalendarGrid = ({ categorizedEvents }: { categorizedEvents: Categor
                     <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
                 </Box >
             </Box>
+            <CalendarGridWaterMark />
         </Box>
     );
 }
