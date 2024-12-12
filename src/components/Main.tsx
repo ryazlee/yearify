@@ -65,7 +65,7 @@ const LandingPage = () => (
             maxWidth: "700px",
             margin: "0 auto",
             textAlign: "center",
-            padding: "40px 20px",
+            padding: "20px 0",
         }}
     >
         <Header />
@@ -87,7 +87,7 @@ const LandingPage = () => (
             }}
         />
         <Typography variant="body1">
-            Click the button below to connect your Google Calendar and get started today!
+            Click the button below to connect your Google Calendar and get started!
         </Typography>
     </Box>
 );
