@@ -97,11 +97,6 @@ function Main() {
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
     const [showStats, setShowStats] = useState(false);
 
-    const allEvents = useMemo(() => {
-        if (!categorizedEvents) return [];
-        return Object.values(categorizedEvents).flat();
-    }, [categorizedEvents]);
-
     const fetchCalendarEvents = useCallback(async () => {
         try {
             const events = await api.getCalendarEvents();
@@ -137,6 +132,7 @@ function Main() {
         setCategorizedEvents(updatedCategorizedEvents);
     };
 
+
     return (
         <Box paddingBottom={10}>
             {!authenticated ? (
@@ -149,9 +145,7 @@ function Main() {
                 <>
                     <Header />
                     <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(false)} />
-
-
-                    {categorizedEvents && (
+                    {categorizedEvents ? (
                         <>
                             <Typography marginTop={2} sx={{ fontStyle: 'italic' }}>
                                 Drag and drop or click the <ModeEditIcon fontSize="small" /> icon to categorize events!
@@ -177,6 +171,8 @@ function Main() {
                                 <CalendarGridWaterMark />
                             </DownloadableComponent>
                         </>
+                    ) : (
+                        <Typography>Loading your events...</Typography>
                     )}
                 </>
             )}

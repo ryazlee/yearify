@@ -101,7 +101,6 @@ export const CalendarGridWaterMark = () => {
                 underline="none"
                 sx={{
                     color: 'rgba(0, 0, 0, 0.3)', // Same faint gray color
-                    textDecoration: 'underline',
                 }}
             >
                 https://ryazlee.github.io/yearify/

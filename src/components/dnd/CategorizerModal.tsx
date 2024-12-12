@@ -50,6 +50,15 @@ const EventCategorizer = ({
         }
     };
 
+    const deleteEvent = (eventId: string) => {
+        const updatedEvents: CategorizedEvents = {
+            ...categorizedEvents,
+            [initialCategory]: categorizedEvents[initialCategory].filter((event) => event.id !== eventId),
+        };
+
+        setCategorizedEvents(updatedEvents);
+    }
+
     const categorizeEvent = (category: Category) => {
         if (!currEvent) return;
 
@@ -69,13 +78,23 @@ const EventCategorizer = ({
     }
 
     return (
-        <Box>
-            <Typography variant="h6" marginBottom="10px">
+        <Box sx={{ maxWidth: "100%", overflow: "hidden" }}>
+            <Typography variant="h5" marginBottom="10px">
                 {currEvent.summary || "Unnamed Event"} <IconButton onClick={() => { window.open(currEvent.htmlLink) }}>
                     <LinkIcon />
                 </IconButton>
             </Typography>
-            <Typography variant="body1" marginBottom="10px" textOverflow={"ellipsis"}>
+            <Typography
+                variant="body1"
+                sx={{
+                    maxWidth: "100%",
+                    overflow: "hidden",
+                    display: "-webkit-box",
+                    WebkitBoxOrient: "vertical",
+                    WebkitLineClamp: 4,
+                }}
+                marginBottom={"10px"}
+                textOverflow={"ellipsis"}>
                 {currEvent.description || "No description available."}
             </Typography>
             <Typography variant="body2" marginBottom="10px">
@@ -93,6 +112,15 @@ const EventCategorizer = ({
                 disabled={currIndex >= categorizedEvents[initialCategory].length - 1}
             >
                 Skip Event
+            </Button>
+            <Button
+                variant="outlined"
+                color="primary"
+                size="small"
+                onClick={() => deleteEvent(currEvent.id)}
+                style={{ marginLeft: "10px" }}
+            >
+                Delete Event
             </Button>
         </Box>
     );
