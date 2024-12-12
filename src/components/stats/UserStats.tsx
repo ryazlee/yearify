@@ -15,7 +15,7 @@ const StatCard = ({ title, value }: { title: string; value: string | number }) =
         <Typography sx={{ fontSize: "10px" }} color="textSecondary" gutterBottom>
             {title.charAt(0).toUpperCase() + title.slice(1)}
         </Typography>
-        <Typography sx={{ fontSize: "8px" }} color="primary">
+        <Typography sx={{ fontSize: "9px" }} color="primary">
             {value}
         </Typography>
     </Paper>
@@ -39,7 +39,7 @@ const UserStats = ({ categorizedEvents }: { categorizedEvents: CategorizedEvents
 
     return (
         <Box sx={{ marginTop: 2 }}>
-            <Typography >
+            <Typography sx={{ fontSize: 12 }}>
                 Your Year in Numbers
             </Typography>
 
