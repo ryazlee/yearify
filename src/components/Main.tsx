@@ -16,13 +16,12 @@ const Footer = () => (
         component="footer"
         sx={{
             textAlign: 'center',
-            padding: '2rem 0',
+            paddingTop: '1rem',
         }}
     >
         <Link
             href={`${process.env.PUBLIC_URL}/legal/privacy-policy.txt`}
             underline="hover"
-            color="textSecondary"
             target="_blank"
             rel="noopener"
             sx={{
@@ -35,7 +34,6 @@ const Footer = () => (
         <Link
             href={`${process.env.PUBLIC_URL}/legal/terms-of-service.txt`}
             underline="hover"
-            color="textSecondary"
             target="_blank"
             rel="noopener"
             sx={{
@@ -44,6 +42,9 @@ const Footer = () => (
         >
             Terms of Service
         </Link>
+        <Typography color="textSecondary" sx={{ fontSize: '0.75rem', fontStyle: 'italic' }}>
+            If you have any questions or concerns, please <Link href="mailto:ryan.j.lee99@gmail.com">email me</Link> or fill out the <Link href="https://docs.google.com/forms/d/e/1FAIpQLSdPgeP1zRy7N_lK9NKIeoIz8FwEY9OWyllDHgd5Q0PUWz4R1g/viewform?usp=sharing">feedback form</Link>
+        </Typography>
     </Box>
 );
 
@@ -134,12 +135,11 @@ function Main() {
 
 
     return (
-        <Box paddingBottom={10}>
+        <Box paddingBottom={"2rem"}>
             {!authenticated ? (
                 <>
                     <LandingPage />
                     <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(true)} />
-                    <Footer />
                 </>
             ) : (
                 <>
@@ -176,6 +176,7 @@ function Main() {
                     )}
                 </>
             )}
+            <Footer />
         </Box>
     );
 }

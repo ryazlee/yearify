@@ -70,7 +70,7 @@ export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: num
     });
 
     return (
-        <Grid container width={'130px'}>
+        <Grid container width={'129px'}>
             {allDays.map((day, index) => (
                 <Grid key={`${day.month}-${day.num}-${index}`}>
                     <DateSquare day={day} events={calendarEvents} isEmpty={day.isEmpty} />

@@ -5,6 +5,18 @@ import { Box, Button } from "@mui/material";
 const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
     const componentRef = useRef<HTMLDivElement>(null);
 
+    const showDownloadInstructionAlert = () => {
+        alert("Clicking Download will save the image to your device, but will not save to camera roll on mobile devices. For that, please use the Share Image option if using safari, or open in a new window and save the image from there.");
+    }
+
+    const showShareInstructionAlert = () => {
+        alert("Clicking Share will open a share dialog where you can share the image to other apps or save to camera roll on mobile devices.  If you are using chrome, you may need to open in a new window and save the image from there.");
+    }
+
+    const showViewInNewWindowInstructionAlert = () => {
+        alert("Clicking View in New Window will open the image in a new tab where you can long press the image to save to your device or camera roll.");
+    }
+
     const captureImage = async () => {
         if (!componentRef.current) return null;
 
@@ -24,6 +36,7 @@ const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleDownload = async () => {
+        showDownloadInstructionAlert();
         const blob = await captureImage();
         if (blob) {
             const fileName = `yearify-image-${new Date().toISOString()}.png`;
@@ -36,6 +49,7 @@ const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleShare = async () => {
+        showShareInstructionAlert()
         const blob = await captureImage();
         if (blob) {
             const fileName = `yearify-image-${new Date().toISOString()}.png`;
@@ -58,6 +72,7 @@ const DownloadableComponent = ({ children }: { children: React.ReactNode }) => {
     };
 
     const handleViewInNewWindow = async () => {
+        showViewInNewWindowInstructionAlert();
         const blob = await captureImage();
         if (blob) {
             const imageURL = URL.createObjectURL(blob);

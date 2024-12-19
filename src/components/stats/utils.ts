@@ -3,7 +3,18 @@ import { CalendarEvent, CategorizedEvents, Category } from "../types";
 export const getStats = (categorizedEvents: CategorizedEvents) => {
     const stats: { [key: string]: number | string } = {};
     for (const category in categorizedEvents) {
-        stats[category] = categorizedEvents[category as Category].length;
+        let categoryDayCount = 0;
+        const categoryEvents = categorizedEvents[category as Category];
+
+        for (const event of categoryEvents) {
+            const startDateTime = new Date(event.start);
+            const endDateTime = new Date(event.end);
+            const days = Math.ceil((endDateTime.getTime() - startDateTime.getTime()) / (1000 * 3600 * 24));
+            categoryDayCount += days;
+        }
+
+        const percentage = ((categoryDayCount / 365) * 100).toFixed(2) + "%";
+        stats[category] = percentage
     }
     return stats;
 }

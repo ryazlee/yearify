@@ -39,7 +39,7 @@ const UserStats = ({ categorizedEvents }: { categorizedEvents: CategorizedEvents
 
     return (
         <Box sx={{ marginTop: 2 }}>
-            <Typography sx={{ fontSize: 12 }}>
+            <Typography sx={{ fontSize: 11, fontWeight: "bold" }}>
                 Your Year in Numbers
             </Typography>
 
