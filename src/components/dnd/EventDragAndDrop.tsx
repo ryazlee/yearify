@@ -167,7 +167,7 @@ export const EventDragAndDrop = ({
                                     sx={{
                                         bgcolor: CATEGORY_COLORS[columnId],
                                         p: 2,
-                                        flex: "1 1 300px",
+                                        flex: "1 1 250px",
                                         maxWidth: 400,
                                         height: 400,
                                         borderRadius: 1,
