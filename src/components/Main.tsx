@@ -10,6 +10,9 @@ import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
 import { FormControlLabel, Link, Switch, Typography } from "@mui/material";
 import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DemoImage from "../assets/images/demo-image.png";
+import PrivacyPolicy from "../assets/legal/privacy-policy.txt";
+import TermsOfService from "../assets/legal/terms-of-service.txt";
 
 const Footer = () => (
     <Box
@@ -20,7 +23,7 @@ const Footer = () => (
         }}
     >
         <Link
-            href={`${process.env.PUBLIC_URL}/legal/privacy-policy.txt`}
+            href={PrivacyPolicy}
             underline="hover"
             target="_blank"
             rel="noopener"
@@ -32,7 +35,7 @@ const Footer = () => (
             Privacy Policy
         </Link>
         <Link
-            href={`${process.env.PUBLIC_URL}/legal/terms-of-service.txt`}
+            href={TermsOfService}
             underline="hover"
             target="_blank"
             rel="noopener"
@@ -78,7 +81,7 @@ const LandingPage = () => (
         </Typography>
         <Box
             component="img"
-            src={`${process.env.PUBLIC_URL}/media/demo-image.png`}
+            src={DemoImage}
             alt="Demo visualization"
             sx={{
                 width: "100%",

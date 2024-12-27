@@ -1,18 +1,25 @@
 import ApiCalendar from "react-google-calendar-api";
 
-const config = {
-    clientId:
-        "630414025877-qea2q4pmk86335ul1m259uk3p0klgvit.apps.googleusercontent.com",
-    apiKey: "AIzaSyAfDGFQrNL92O_92PZ2JD2pX_aXP9Ug1QE",
-    scope: "https://www.googleapis.com/auth/calendar",
-    discoveryDocs: [
-        "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
-    ],
-};
-
 class API {
     apiCalendar: ApiCalendar;
     constructor() {
+
+        const clientId = process.env.REACT_APP_CLIENT_ID;
+        const apiKey = process.env.REACT_APP_API_KEY;
+
+        if (!clientId || !apiKey) {
+            throw new Error("Missing CLIENT_ID or API_KEY");
+        }
+
+        const config = {
+            clientId,
+            apiKey,
+            scope: "https://www.googleapis.com/auth/calendar",
+            discoveryDocs: [
+                "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest",
+            ],
+        };
+
         this.apiCalendar = new ApiCalendar(config);
     }
 
