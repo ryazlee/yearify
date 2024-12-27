@@ -8,15 +8,23 @@ import { AuthButton } from "./auth/AuthButton";
 import { CalendarGrid, CalendarGridWaterMark } from "./calendar/CalendarGrid";
 import Box from "@mui/material/Box";
 import UserStats from "./stats/UserStats";
-import { FormControlLabel, Link, Switch, Typography } from "@mui/material";
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import {
+    FormControlLabel,
+    IconButton,
+    Link,
+    Switch,
+    Typography,
+} from "@mui/material";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import { UserGuideModal } from "./userGuide/UserGuideModal";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
 
 const Footer = () => (
     <Box
         component="footer"
         sx={{
-            textAlign: 'center',
-            paddingTop: '1rem',
+            textAlign: "center",
+            paddingTop: "1rem",
         }}
     >
         <Link
@@ -25,8 +33,8 @@ const Footer = () => (
             target="_blank"
             rel="noopener"
             sx={{
-                fontSize: '0.75rem',
-                marginRight: '1rem',
+                fontSize: "0.75rem",
+                marginRight: "1rem",
             }}
         >
             Privacy Policy
@@ -37,28 +45,58 @@ const Footer = () => (
             target="_blank"
             rel="noopener"
             sx={{
-                fontSize: '0.75rem',
+                fontSize: "0.75rem",
             }}
         >
             Terms of Service
         </Link>
-        <Typography color="textSecondary" sx={{ fontSize: '0.75rem', fontStyle: 'italic' }}>
-            If you have any questions or concerns, please <Link href="mailto:ryan.j.lee99@gmail.com">email me</Link> or fill out the <Link href="https://docs.google.com/forms/d/e/1FAIpQLSdPgeP1zRy7N_lK9NKIeoIz8FwEY9OWyllDHgd5Q0PUWz4R1g/viewform?usp=sharing">feedback form</Link>
+        <Typography
+            color="textSecondary"
+            sx={{ fontSize: "0.75rem", fontStyle: "italic" }}
+        >
+            If you have any questions or concerns, please{" "}
+            <Link href="mailto:ryan.j.lee99@gmail.com">email me</Link> or fill out the{" "}
+            <Link href="https://docs.google.com/forms/d/e/1FAIpQLSdPgeP1zRy7N_lK9NKIeoIz8FwEY9OWyllDHgd5Q0PUWz4R1g/viewform?usp=sharing">
+                feedback form
+            </Link>
         </Typography>
     </Box>
 );
 
-const Header = () => (
-    <Box
-        component="header"
-        sx={{
-            alignItems: "center",
-            padding: "20px",
-        }}
-    >
-        <Typography variant="h4">✨ Yearify ✨</Typography>
-    </Box>
-);
+const Header = () => {
+    const [showUserGuide, setShowUserGuide] = useState(false);
+
+    return (
+        <>
+            {showUserGuide && (
+                <UserGuideModal
+                    isOpen={showUserGuide}
+                    onModalClose={() => setShowUserGuide(false)}
+                />
+            )}
+            <Box
+                component="header"
+                sx={{
+                    alignItems: "center",
+                    padding: "20px",
+                }}
+            >
+                <Typography variant="h4">✨ Yearify ✨</Typography>
+                <Box
+                    sx={{
+                        position: "absolute",
+                        right: "1em",
+                        top: "1em",
+                    }}
+                >
+                    <IconButton size="small" onClick={() => setShowUserGuide(true)}>
+                        <HelpOutlineIcon fontSize="small" />
+                    </IconButton>
+                </Box>
+            </Box>
+        </>
+    );
+};
 
 const LandingPage = () => (
     <Box
@@ -66,15 +104,17 @@ const LandingPage = () => (
             maxWidth: "700px",
             margin: "0 auto",
             textAlign: "center",
-            padding: "20px 0",
+            paddingBottom: "1rem",
         }}
     >
-        <Header />
         <Typography variant="body1" gutterBottom>
-            Yearify helps you rediscover your year through your Google Calendar events! 📅
+            Yearify helps you rediscover your year through your Google Calendar
+            events! 📅
         </Typography>
         <Typography variant="body1" gutterBottom>
-            We'll fetch your events from the past year, organize them, and turn them into a clear, colorful snapshot of your time. It's your year, visualized! 🖼️
+            We'll fetch your events from the past year, organize them, and turn them
+            into a clear, colorful snapshot of your time. It's your year, visualized!
+            🖼️
         </Typography>
         <Box
             component="img"
@@ -95,14 +135,17 @@ const LandingPage = () => (
 
 function Main() {
     const [authenticated, setAuthenticated] = useState(false);
-    const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
+    const [categorizedEvents, setCategorizedEvents] =
+        useState<CategorizedEvents | null>(null);
     const [showStats, setShowStats] = useState(false);
 
     const fetchCalendarEvents = useCallback(async () => {
         try {
             const events = await api.getCalendarEvents();
             const calendarEvents: CalendarEvent[] = events.map((event: any) => {
-                const startDateTime = new Date(event.start?.dateTime || event.start?.date);
+                const startDateTime = new Date(
+                    event.start?.dateTime || event.start?.date
+                );
                 startDateTime.setFullYear(2024);
                 const endDateTime = new Date(event.end?.dateTime || event.end?.date);
                 endDateTime.setFullYear(2024);
@@ -114,7 +157,7 @@ function Main() {
                     end: endDateTime.toISOString(),
                     description: event.description,
                     location: event.location,
-                    htmlLink: event.htmlLink
+                    htmlLink: event.htmlLink,
                 };
             });
             setCategorizedEvents(categorizeEvents(calendarEvents));
@@ -129,26 +172,34 @@ function Main() {
         }
     }, [authenticated, fetchCalendarEvents]);
 
-    const onUpdateCategoriesHandler = (updatedCategorizedEvents: CategorizedEvents) => {
+    const onUpdateCategoriesHandler = (
+        updatedCategorizedEvents: CategorizedEvents
+    ) => {
         setCategorizedEvents(updatedCategorizedEvents);
     };
 
-
     return (
         <Box paddingBottom={"2rem"}>
+            <Header />
             {!authenticated ? (
                 <>
                     <LandingPage />
-                    <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(true)} />
+                    <AuthButton
+                        isAuthenticated={authenticated}
+                        callback={() => setAuthenticated(true)}
+                    />
                 </>
             ) : (
                 <>
-                    <Header />
-                    <AuthButton isAuthenticated={authenticated} callback={() => setAuthenticated(false)} />
+                    <AuthButton
+                        isAuthenticated={authenticated}
+                        callback={() => setAuthenticated(false)}
+                    />
                     {categorizedEvents ? (
                         <>
-                            <Typography marginTop={2} sx={{ fontStyle: 'italic' }}>
-                                Drag and drop or click the <ModeEditIcon fontSize="small" /> icon to categorize events!
+                            <Typography marginTop={2} sx={{ fontStyle: "italic" }}>
+                                Drag and drop or click the <ModeEditIcon fontSize="small" />{" "}
+                                icon to categorize events!
                             </Typography>
                             <EventDragAndDrop
                                 initialCategories={categorizedEvents}
@@ -167,7 +218,9 @@ function Main() {
                             />
                             <DownloadableComponent>
                                 <CalendarGrid categorizedEvents={categorizedEvents} />
-                                {showStats && <UserStats categorizedEvents={categorizedEvents} />}
+                                {showStats && (
+                                    <UserStats categorizedEvents={categorizedEvents} />
+                                )}
                                 <CalendarGridWaterMark />
                             </DownloadableComponent>
                         </>
