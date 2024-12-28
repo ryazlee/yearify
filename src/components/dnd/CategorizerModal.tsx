@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Category, CategorizedEvents, CATEGORIES } from "../types";
-import { Modal, Box, Button, Typography, IconButton } from "@mui/material";
+import { Modal, Box, Button, Typography, IconButton, useMediaQuery, useTheme } from "@mui/material";
 import LinkIcon from '@mui/icons-material/Link';
 
 const CategorizationButtons = ({
@@ -42,7 +42,7 @@ const EventCategorizer = ({
 
     useEffect(() => {
         setCurrEvent(categorizedEvents[initialCategory][currIndex]);
-    }, [currIndex, categorizedEvents[initialCategory]]);
+    }, [currIndex, categorizedEvents, initialCategory]);
 
     const handleNextEvent = () => {
         if (currIndex < categorizedEvents[initialCategory].length - 1) {
@@ -141,6 +141,8 @@ export const CategorizerModal = ({
     setCategories: (categorizedEvents: CategorizedEvents) => void;
     category: Category;
 }) => {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents>({ ...initialCategorizedEvents });
 
     const saveCategories = () => {
@@ -153,7 +155,7 @@ export const CategorizerModal = ({
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        maxWidth: 500,
+        width: isMobile ? "90%" : "600px",
         bgcolor: "background.paper",
         border: "2px solid #000",
         boxShadow: 24,

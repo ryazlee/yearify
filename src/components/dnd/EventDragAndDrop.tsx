@@ -5,7 +5,7 @@ import {
     Draggable,
     DropResult,
 } from "react-beautiful-dnd";
-import { Box, Typography, IconButton, Paper, Icon } from "@mui/material";
+import { Box, Typography, IconButton, Paper } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CalendarEvent, Category, CategorizedEvents, CATEGORY_COLORS } from "../types";
 import { CategorizerModal } from "./CategorizerModal";
