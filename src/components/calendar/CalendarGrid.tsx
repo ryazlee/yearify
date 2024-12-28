@@ -95,7 +95,7 @@ export const CalendarGridWaterMark = () => {
         >
             Made by Yearify at{" "}
             <Link
-                href="https://ryazlee.github.io/yearify/"
+                href="https://yearify.org"
                 target="_blank"
                 rel="noopener noreferrer"
                 underline="none"
@@ -103,7 +103,7 @@ export const CalendarGridWaterMark = () => {
                     color: 'rgba(0, 0, 0, 0.3)', // Same faint gray color
                 }}
             >
-                https://ryazlee.github.io/yearify/
+                https://yearify.org
             </Link>
         </Box>
     );

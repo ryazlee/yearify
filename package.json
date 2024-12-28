@@ -1,7 +1,7 @@
 {
   "name": "yearify",
-  "version": "0.1.0",
-  "homepage": "https://ryazlee.github.io/yearify",
+  "version": "1.0.0",
+  "homepage": "https://yearify.org",
   "private": true,
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
