@@ -34,7 +34,7 @@ const EventCategorizer = ({
     initialCategory,
 }: {
     categorizedEvents: CategorizedEvents;
-    setCategorizedEvents: React.Dispatch<React.SetStateAction<CategorizedEvents>>;
+    setCategorizedEvents: React.Dispatch<React.SetStateAction<CategorizedEvents | null>>;
     initialCategory: Category;
 }) => {
     const [currIndex, setCurrIndex] = useState(0);
@@ -143,12 +143,24 @@ export const CategorizerModal = ({
 }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-    const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents>({ ...initialCategorizedEvents });
+    const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
 
-    const saveCategories = () => {
+    useEffect(() => {
+        setCategorizedEvents(initialCategorizedEvents);
+    }, [initialCategorizedEvents]);
+
+    const saveCategoriesHandler = () => {
+        if (!categorizedEvents) {
+            return;
+        }
         setCategories({ ...categorizedEvents });
         onModalClose();
     };
+
+    const onModalCloseHandler = () => {
+        setCategorizedEvents(initialCategorizedEvents);
+        onModalClose();
+    }
 
     const style = {
         position: "absolute",
@@ -162,6 +174,10 @@ export const CategorizerModal = ({
         p: 4,
     };
 
+    if (!categorizedEvents) {
+        return <Typography>Loading...</Typography>;
+    }
+
     return (
         <Modal open={isOpen} onClose={onModalClose}>
             <Box sx={style}>
@@ -171,10 +187,10 @@ export const CategorizerModal = ({
                     initialCategory={category}
                 />
                 <Box display="flex" justifyContent="space-between" marginTop="20px">
-                    <Button variant="contained" color="secondary" size="small" onClick={saveCategories}>
+                    <Button variant="contained" color="secondary" size="small" onClick={saveCategoriesHandler}>
                         Save Categories
                     </Button>
-                    <Button variant="outlined" color="secondary" size="small" onClick={onModalClose}>
+                    <Button variant="outlined" color="secondary" size="small" onClick={onModalCloseHandler}>
                         Close
                     </Button>
                 </Box>

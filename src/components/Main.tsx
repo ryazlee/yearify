@@ -17,7 +17,7 @@ import {
 } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { UserGuideModal } from "./userGuide/UserGuideModal";
-import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import LaunchIcon from '@mui/icons-material/Launch';
 
 const Footer = () => (
     <Box
@@ -198,9 +198,11 @@ function Main() {
                     {categorizedEvents ? (
                         <>
                             <Typography marginTop={2} sx={{ fontStyle: "italic" }}>
-                                Drag and drop or click the <ModeEditIcon fontSize="small" />{" "}
+                                Drag and drop or click the
+                                <LaunchIcon fontSize="small" sx={{ verticalAlign: "middle", marginX: 0.5 }} />
                                 icon to categorize events!
                             </Typography>
+
                             <EventDragAndDrop
                                 initialCategories={categorizedEvents}
                                 onUpdateCategories={onUpdateCategoriesHandler}

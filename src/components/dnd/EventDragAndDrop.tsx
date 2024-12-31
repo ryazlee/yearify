@@ -9,7 +9,7 @@ import { Box, Typography, IconButton, Paper } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { CalendarEvent, Category, CategorizedEvents, CATEGORY_COLORS } from "../types";
 import { CategorizerModal } from "./CategorizerModal";
-import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 const EventComponent = ({
     calendarEvent,
@@ -193,7 +193,7 @@ export const EventDragAndDrop = ({
                                             size="small"
                                             onClick={() => onClickCategorizer(columnId as Category)}
                                         >
-                                            <ModeEditIcon fontSize="small" />
+                                            <LaunchIcon fontSize="small" />
                                         </IconButton>
                                     </Typography>
                                     {calendarEvents.map((calendarEvent, index) => (
