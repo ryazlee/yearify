@@ -1,102 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { CalendarEvent, CategorizedEvents } from "./types";
-import { api } from "../api";
-import { categorizeEvents } from "./categorizer/utils";
-import DownloadableComponent from "./downloadableImage/DownloadableComponent";
-import { EventDragAndDrop } from "./dnd/EventDragAndDrop";
-import { AuthButton } from "./auth/AuthButton";
-import { CalendarGrid, CalendarGridWaterMark } from "./calendar/CalendarGrid";
+import { CalendarEvent, CategorizedEvents } from "../types";
+import { api } from "../../api";
+import { categorizeEvents } from "../categorizer/utils";
+import DownloadableComponent from "../downloadableImage/DownloadableComponent";
+import { EventDragAndDrop } from "../dnd/EventDragAndDrop";
+import { AuthButton } from "../auth/AuthButton";
+import { CalendarGrid, CalendarGridWaterMark } from "../calendar/CalendarGrid";
 import Box from "@mui/material/Box";
-import UserStats from "./stats/UserStats";
-import {
-    FormControlLabel,
-    IconButton,
-    Link,
-    Switch,
-    Typography,
-} from "@mui/material";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import { UserGuideModal } from "./userGuide/UserGuideModal";
+import UserStats from "../stats/UserStats";
+import { FormControlLabel, Switch, Typography } from "@mui/material";
 import LaunchIcon from '@mui/icons-material/Launch';
-
-const Footer = () => (
-    <Box
-        component="footer"
-        sx={{
-            textAlign: "center",
-            paddingTop: "1rem",
-        }}
-    >
-        <Link
-            href={`${process.env.PUBLIC_URL}/legal/privacy-policy.txt`}
-            underline="hover"
-            target="_blank"
-            rel="noopener"
-            sx={{
-                fontSize: "0.75rem",
-                marginRight: "1rem",
-            }}
-        >
-            Privacy Policy
-        </Link>
-        <Link
-            href={`${process.env.PUBLIC_URL}/legal/terms-of-service.txt`}
-            underline="hover"
-            target="_blank"
-            rel="noopener"
-            sx={{
-                fontSize: "0.75rem",
-            }}
-        >
-            Terms of Service
-        </Link>
-        <Typography
-            color="textSecondary"
-            sx={{ fontSize: "0.75rem", fontStyle: "italic" }}
-        >
-            If you have any questions or concerns, please{" "}
-            <Link href="mailto:ryan.j.lee99@gmail.com">email me</Link> or fill out the{" "}
-            <Link href="https://docs.google.com/forms/d/e/1FAIpQLSdPgeP1zRy7N_lK9NKIeoIz8FwEY9OWyllDHgd5Q0PUWz4R1g/viewform?usp=sharing">
-                feedback form
-            </Link>
-        </Typography>
-    </Box>
-);
-
-const Header = () => {
-    const [showUserGuide, setShowUserGuide] = useState(false);
-
-    return (
-        <>
-            {showUserGuide && (
-                <UserGuideModal
-                    isOpen={showUserGuide}
-                    onModalClose={() => setShowUserGuide(false)}
-                />
-            )}
-            <Box
-                component="header"
-                sx={{
-                    alignItems: "center",
-                    padding: "20px",
-                }}
-            >
-                <Typography variant="h4">✨ Yearify ✨</Typography>
-                <Box
-                    sx={{
-                        position: "absolute",
-                        right: "1em",
-                        top: "1em",
-                    }}
-                >
-                    <IconButton size="small" onClick={() => setShowUserGuide(true)}>
-                        <HelpOutlineIcon fontSize="small" />
-                    </IconButton>
-                </Box>
-            </Box>
-        </>
-    );
-};
 
 const LandingPage = () => (
     <Box
@@ -118,7 +31,7 @@ const LandingPage = () => (
         </Typography>
         <Box
             component="img"
-            src={`${process.env.PUBLIC_URL}/media/demo-image.png`}
+            src={`/media/demo-image.png`}
             alt="Demo visualization"
             sx={{
                 width: "100%",
@@ -133,19 +46,16 @@ const LandingPage = () => (
     </Box>
 );
 
-function Main() {
+function Yearify() {
     const [authenticated, setAuthenticated] = useState(false);
-    const [categorizedEvents, setCategorizedEvents] =
-        useState<CategorizedEvents | null>(null);
+    const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
     const [showStats, setShowStats] = useState(false);
 
     const fetchCalendarEvents = useCallback(async () => {
         try {
             const events = await api.getCalendarEvents();
             const calendarEvents: CalendarEvent[] = events.map((event: any) => {
-                const startDateTime = new Date(
-                    event.start?.dateTime || event.start?.date
-                );
+                const startDateTime = new Date(event.start?.dateTime || event.start?.date);
                 startDateTime.setFullYear(2024);
                 const endDateTime = new Date(event.end?.dateTime || event.end?.date);
                 endDateTime.setFullYear(2024);
@@ -163,24 +73,24 @@ function Main() {
             setCategorizedEvents(categorizeEvents(calendarEvents));
         } catch (error) {
             console.error("Error fetching events:", error);
+            // Optionally display an error message to the user
         }
     }, []);
 
     useEffect(() => {
         if (authenticated) {
             fetchCalendarEvents();
+        } else {
+            setCategorizedEvents(null); // Clear events if not authenticated
         }
     }, [authenticated, fetchCalendarEvents]);
 
-    const onUpdateCategoriesHandler = (
-        updatedCategorizedEvents: CategorizedEvents
-    ) => {
+    const onUpdateCategoriesHandler = (updatedCategorizedEvents: CategorizedEvents) => {
         setCategorizedEvents(updatedCategorizedEvents);
     };
 
     return (
-        <Box paddingBottom={"2rem"}>
-            <Header />
+        <Box>
             {!authenticated ? (
                 <>
                     <LandingPage />
@@ -231,9 +141,8 @@ function Main() {
                     )}
                 </>
             )}
-            <Footer />
         </Box>
     );
 }
 
-export default Main;
+export default Yearify;
