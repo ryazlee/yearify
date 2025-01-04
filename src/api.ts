@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import ApiCalendar from "react-google-calendar-api";
 
 const config = {
@@ -11,29 +12,41 @@ const config = {
 };
 
 class API {
-    apiCalendar: ApiCalendar;
+    apiCalendar: ApiCalendar | null = null;
+
     constructor() {
-        this.apiCalendar = new ApiCalendar(config);
+        if (typeof window !== "undefined") {
+            // Only initialize ApiCalendar if running client-side
+            this.apiCalendar = new ApiCalendar(config);
+        }
     }
 
     getCalendarEvents = () => {
-        return this.apiCalendar.listEvents({
-            timeMin: new Date(2024, 0, 1).toISOString(),
-            timeMax: new Date(2024, 11, 31).toISOString(),
-            showDeleted: false,
-            maxResults: 1000,
-            orderBy: "updated",
-        }).then((response: any) => response.result.items);
+        if (this.apiCalendar) {
+            return this.apiCalendar
+                .listEvents({
+                    timeMin: new Date(2024, 0, 1).toISOString(),
+                    timeMax: new Date(2024, 11, 31).toISOString(),
+                    showDeleted: false,
+                    maxResults: 1000,
+                    orderBy: "updated",
+                })
+                .then((response: any) => response.result.items);
+        } else {
+            return Promise.resolve([]);
+        }
     };
 
     handleAuthClick = (name: string, callBack?: () => void): void => {
-        if (name === "sign-in") {
-            this.apiCalendar.handleAuthClick().then(() => {
+        if (this.apiCalendar) {
+            if (name === "sign-in") {
+                this.apiCalendar.handleAuthClick().then(() => {
+                    callBack?.();
+                });
+            } else if (name === "sign-out") {
+                this.apiCalendar.handleSignoutClick();
                 callBack?.();
-            });
-        } else if (name === "sign-out") {
-            this.apiCalendar.handleSignoutClick()
-            callBack?.()
+            }
         }
     };
 }

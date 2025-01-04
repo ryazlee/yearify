@@ -8,11 +8,7 @@ import { AuthButton } from "../auth/AuthButton";
 import { CalendarGrid, CalendarGridWaterMark } from "../calendar/CalendarGrid";
 import Box from "@mui/material/Box";
 import UserStats from "../stats/UserStats";
-import {
-    FormControlLabel,
-    Switch,
-    Typography,
-} from "@mui/material";
+import { FormControlLabel, Switch, Typography } from "@mui/material";
 import LaunchIcon from '@mui/icons-material/Launch';
 
 const LandingPage = () => (
@@ -52,17 +48,14 @@ const LandingPage = () => (
 
 function Yearify() {
     const [authenticated, setAuthenticated] = useState(false);
-    const [categorizedEvents, setCategorizedEvents] =
-        useState<CategorizedEvents | null>(null);
+    const [categorizedEvents, setCategorizedEvents] = useState<CategorizedEvents | null>(null);
     const [showStats, setShowStats] = useState(false);
 
     const fetchCalendarEvents = useCallback(async () => {
         try {
             const events = await api.getCalendarEvents();
             const calendarEvents: CalendarEvent[] = events.map((event: any) => {
-                const startDateTime = new Date(
-                    event.start?.dateTime || event.start?.date
-                );
+                const startDateTime = new Date(event.start?.dateTime || event.start?.date);
                 startDateTime.setFullYear(2024);
                 const endDateTime = new Date(event.end?.dateTime || event.end?.date);
                 endDateTime.setFullYear(2024);
@@ -80,18 +73,19 @@ function Yearify() {
             setCategorizedEvents(categorizeEvents(calendarEvents));
         } catch (error) {
             console.error("Error fetching events:", error);
+            // Optionally display an error message to the user
         }
     }, []);
 
     useEffect(() => {
         if (authenticated) {
             fetchCalendarEvents();
+        } else {
+            setCategorizedEvents(null); // Clear events if not authenticated
         }
     }, [authenticated, fetchCalendarEvents]);
 
-    const onUpdateCategoriesHandler = (
-        updatedCategorizedEvents: CategorizedEvents
-    ) => {
+    const onUpdateCategoriesHandler = (updatedCategorizedEvents: CategorizedEvents) => {
         setCategorizedEvents(updatedCategorizedEvents);
     };
 
