@@ -1,24 +1,16 @@
+
 import { Button } from '@mui/material';
 import { api } from '../../api';
 
-interface AuthButtonProps {
-    isAuthenticated: boolean;
-    callback: () => void;
-}
-
-export const AuthButton = ({ isAuthenticated, callback }: AuthButtonProps) => {
-    const handleAuthClick = () => {
-        api.handleAuthClick(isAuthenticated ? "sign-out" : "sign-in", callback);
-    };
-
+export const AuthButton = ({ isAuthenticated, callback }: { isAuthenticated: boolean, callback: () => void }) => {
     return (
         <Button
             variant="contained"
             color="primary"
             size="medium"
-            onClick={handleAuthClick}
+            onClick={(_) => api.handleAuthClick(isAuthenticated ? "sign-out" : "sign-in", callback)}
         >
             {isAuthenticated ? "Disconnect from Google Calendar" : "Connect to Google Calendar"}
         </Button>
     );
-};
+}
