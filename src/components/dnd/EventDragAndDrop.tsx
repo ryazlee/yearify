@@ -27,7 +27,7 @@ const EventComponent = ({
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    elevation={snapshot.isDragging ? 6 : 1}
+                    elevation={0}
                     sx={{
                         p: 1,
                         mb: 1,
@@ -37,7 +37,10 @@ const EventComponent = ({
                         bgcolor: snapshot.isDragging ? "action.hover" : "background.paper",
                         border: "1px solid",
                         borderColor: "divider",
-                        borderRadius: 1,
+                        borderRadius: 1.5,
+                        boxShadow: snapshot.isDragging
+                            ? "0 4px 16px rgba(17, 24, 39, 0.12)"
+                            : "none",
                     }}
                 >
                     <Typography
@@ -170,8 +173,9 @@ export const EventDragAndDrop = ({
                                         flex: "1 1 250px",
                                         maxWidth: 400,
                                         height: 400,
-                                        borderRadius: 1,
-                                        boxShadow: 1,
+                                        borderRadius: 2,
+                                        border: "1px solid",
+                                        borderColor: "divider",
                                         overflowY: "auto",
                                         "@media (max-width: 600px)": {
                                             flex: "1 1 45%",
@@ -179,19 +183,30 @@ export const EventDragAndDrop = ({
                                     }}
                                 >
                                     <Typography
-                                        variant="h6"
+                                        variant="subtitle1"
                                         sx={{
                                             mb: 2,
-                                            bgcolor: "background.default",
-                                            px: 1,
-                                            py: 0.5,
-                                            borderRadius: 1,
+                                            bgcolor: "background.paper",
+                                            px: 1.25,
+                                            py: 0.75,
+                                            borderRadius: 1.5,
+                                            border: "1px solid",
+                                            borderColor: "divider",
+                                            fontWeight: 600,
+                                            letterSpacing: "-0.02em",
+                                            textTransform: "capitalize",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "space-between",
                                         }}
                                     >
-                                        {columnId} ({calendarEvents.length}/{getAllEventCount()})
+                                        <span>
+                                            {columnId} ({calendarEvents.length}/{getAllEventCount()})
+                                        </span>
                                         <IconButton
                                             size="small"
                                             onClick={() => onClickCategorizer(columnId as Category)}
+                                            aria-label={`Categorize ${columnId}`}
                                         >
                                             <LaunchIcon fontSize="small" />
                                         </IconButton>

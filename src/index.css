@@ -1,13 +1,287 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+:root {
+  --text: #111827;
+  --text-secondary: #4b5563;
+  --text-muted: #9ca3af;
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  --border-light: #f3f4f6;
+  --accent: #111827;
+  --radius: 12px;
+  --content-max: 720px;
+  --header-height: 56px;
+  --touch-min: 44px;
+
+  /* Product category pastels */
+  --cat-travel: #ffddc1;
+  --cat-fitness: #c1ffdd;
+  --cat-social: #c1dfff;
+  --cat-personal: #dab1da;
+  --cat-uncategorized: #d3d3d3;
+
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  overscroll-behavior-y: none;
+}
+
+#root {
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.appShell {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  position: relative;
+}
+
+.appShell--landing {
+  background:
+    radial-gradient(ellipse 80% 50% at 15% 10%, color-mix(in srgb, var(--cat-travel) 45%, transparent), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 90% 5%, color-mix(in srgb, var(--cat-social) 40%, transparent), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 70% 90%, color-mix(in srgb, var(--cat-personal) 35%, transparent), transparent 55%),
+    radial-gradient(ellipse 50% 35% at 10% 80%, color-mix(in srgb, var(--cat-fitness) 30%, transparent), transparent 50%),
+    var(--bg);
+}
+
+.shellInner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.appHeader {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.appHeader__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.appHeader__brand {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  text-decoration: none;
+  line-height: 1;
+}
+
+.appMain {
+  flex: 1 1 auto;
+  padding: 1.25rem 0 2.5rem;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.surfaceCard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.appFooter {
+  padding: 1.5rem 0 2rem;
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.appFooter__links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.appFooter__links a,
+.appFooter a {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.appFooter__links a:hover,
+.appFooter a:hover {
+  color: var(--text);
+  text-decoration: underline;
+}
+
+.appFooter__note {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Landing */
+.landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  padding: 1.5rem 0 2rem;
+  min-height: calc(100svh - var(--header-height) - 6rem);
+  justify-content: center;
+}
+
+.landing__brand {
+  margin: 0;
+  font-size: clamp(2.5rem, 8vw, 3.75rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: var(--text);
+  animation: rise 0.6s ease both;
+}
+
+.landing__headline {
+  margin: 0;
+  font-size: clamp(1.15rem, 3.5vw, 1.4rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  animation: rise 0.6s ease 0.06s both;
+}
+
+.landing__lead {
+  margin: 0;
+  max-width: 28rem;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  animation: rise 0.6s ease 0.12s both;
+}
+
+.landing__cta {
+  width: 100%;
+  max-width: 20rem;
+  animation: rise 0.6s ease 0.18s both;
+}
+
+.landing__visual {
+  width: 100%;
+  max-width: 28rem;
+  margin-top: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 12px 32px rgba(17, 24, 39, 0.08);
+  animation: rise 0.7s ease 0.24s both;
+}
+
+.landing__visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Workspace */
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.workspace__hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.workspace__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.loadingState {
+  text-align: center;
+  padding: 2.5rem 1.25rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing__brand,
+  .landing__headline,
+  .landing__lead,
+  .landing__cta,
+  .landing__visual {
+    animation: none;
+  }
 }

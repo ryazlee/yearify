@@ -1,16 +1,44 @@
+import { Button, type ButtonProps } from '@mui/material'
+import { useAuth } from '../../contexts/AuthContext'
 
-import { Button } from '@mui/material';
-import { api } from '../../api';
+type Props = {
+  fullWidth?: boolean
+  size?: ButtonProps['size']
+  variant?: ButtonProps['variant']
+}
 
-export const AuthButton = ({ isAuthenticated, callback }: { isAuthenticated: boolean, callback: () => void }) => {
-    return (
-        <Button
-            variant="contained"
-            color="primary"
-            size="medium"
-            onClick={(_) => api.handleAuthClick(isAuthenticated ? "sign-out" : "sign-in", callback)}
-        >
-            {isAuthenticated ? "Disconnect from Google Calendar" : "Connect to Google Calendar"}
-        </Button>
-    );
+export function AuthButton({
+  fullWidth = false,
+  size = 'large',
+  variant = 'contained',
+}: Props) {
+  const { authenticated, signingIn, isMock, signIn, signOut } = useAuth()
+
+  return (
+    <Button
+      variant={variant}
+      color="primary"
+      size={size}
+      fullWidth={fullWidth}
+      disabled={signingIn}
+      onClick={() => {
+        void (authenticated ? signOut() : signIn())
+      }}
+      sx={
+        fullWidth
+          ? { py: 1.35, fontSize: '1rem', fontWeight: 600 }
+          : undefined
+      }
+    >
+      {signingIn
+        ? 'Connecting…'
+        : authenticated
+          ? isMock
+            ? 'Disconnect demo'
+            : 'Disconnect Google Calendar'
+          : isMock
+            ? 'Try with sample data'
+            : 'Connect Google Calendar'}
+    </Button>
+  )
 }

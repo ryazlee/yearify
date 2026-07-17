@@ -1,6 +1,7 @@
 import { Box, Typography, Grid2 as Grid, Link } from '@mui/material';
 import { CalendarEvent, CategorizedEvents, CATEGORY_COLORS, DayProps, MONTHS_DATA } from '../types';
 import { ColorLegend } from './ColorLegend';
+import { APP_NAME, APP_SITE_URL } from '../../lib/brand';
 
 const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarEvent[], isEmpty: boolean }) => {
     const adjustEndDate = (start: string, end: string): Date => {
@@ -93,17 +94,17 @@ export const CalendarGridWaterMark = () => {
                 color: 'rgba(0, 0, 0, 0.3)', // Faint gray color
             }}
         >
-            Made by Yearify at{" "}
+            Made by {APP_NAME} at{" "}
             <Link
-                href="https://yearify.org"
+                href={APP_SITE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 underline="none"
                 sx={{
-                    color: 'rgba(0, 0, 0, 0.3)', // Same faint gray color
+                    color: 'rgba(0, 0, 0, 0.3)',
                 }}
             >
-                https://yearify.org
+                {APP_SITE_URL.replace(/^https?:\/\//, '')}
             </Link>
         </Box>
     );

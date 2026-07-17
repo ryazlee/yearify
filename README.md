@@ -1,11 +1,24 @@
 # Yearify
 
-Here is the repo for the yearify app! Not much in it yet because it's still a work in progress but hopefully no one will read this message.
+Turn your Google Calendar into a colorful snapshot of your year.
 
-If you have questions/want to contribute, contact @ryazlee at ryan.j.lee99@gmail.com
+Questions / contributions: ryan.j.lee99@gmail.com
 
-## Deployments
+## Develop
 
-Deploying to prod: `npm run deploy -- -m "MESSAGE"`
+```bash
+npm install
+npm start
+```
 
-followed [tutorial](https://github.com/gitname/react-gh-pages)
+Use the mock datastore (no Google OAuth) with:
+
+```bash
+REACT_APP_USE_MOCK=true npm start
+```
+
+## Deploy
+
+Pushes to `main` deploy to [ryazlee.github.io/yearify](https://ryazlee.github.io/yearify) via GitHub Actions (GitHub Pages).
+
+You can also run the workflow manually from the Actions tab.
