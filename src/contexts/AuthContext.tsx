@@ -8,7 +8,6 @@ import {
 } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { signIn as serviceSignIn, signOut as serviceSignOut, isMockDatastore } from '../services/calendarService'
-import { queryKeys } from '../hooks/queryKeys'
 
 type AuthContextValue = {
   authenticated: boolean
@@ -38,7 +37,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const signOut = useCallback(async () => {
     await serviceSignOut()
     setAuthenticated(false)
-    queryClient.removeQueries({ queryKey: queryKeys.yearEvents() })
+    queryClient.removeQueries({ queryKey: ['year-events'] })
+    queryClient.removeQueries({ queryKey: ['month-events'] })
   }, [queryClient])
 
   const value = useMemo(

@@ -1,143 +1,95 @@
-import { Box, Typography, Grid2 as Grid, Link } from '@mui/material';
-import { CalendarEvent, CategorizedEvents, CATEGORY_COLORS, DayProps, MONTHS_DATA } from '../types';
-import { ColorLegend } from './ColorLegend';
-import { APP_NAME, APP_SITE_URL } from '../../lib/brand';
+import type { CategorizedEvents } from '../types'
+import { CATEGORY_COLORS } from '../types'
+import { DEFAULT_YEAR } from '../../datastore/types'
+import { APP_SITE_URL } from '../../lib/brand'
+import { MONTH_NAMES, type ProductMode } from '../../lib/productMode'
+import { getMostEventfulDay, getStats } from '../stats/utils'
+import { MonthGrid, YearGrid } from './MonthGrid'
 
-const DateSquare = ({ day, events, isEmpty }: { day: DayProps, events: CalendarEvent[], isEmpty: boolean }) => {
-    const adjustEndDate = (start: string, end: string): Date => {
-        const startDate = new Date(start);
-        const endDate = new Date(end);
+const LEGEND_ITEMS = [
+  { key: 'travel', label: 'Travel' },
+  { key: 'social', label: 'Social' },
+  { key: 'fitness', label: 'Fitness' },
+  { key: 'personal', label: 'Personal' },
+] as const
 
-        const diffInMilliseconds = endDate.getTime() - startDate.getTime();
-        const diffInSeconds = diffInMilliseconds / 1000;
-        const diffInMinutes = diffInSeconds / 60;
-        const diffInHours = diffInMinutes / 60;
-
-        if (diffInHours === 24 && diffInMinutes % 60 === 0 && diffInSeconds % 60 === 0) {
-            endDate.setDate(endDate.getDate() - 1);
-        }
-        return endDate;
-    };
-
-    const getDayEvents = events.filter((event) => {
-        const eventStartDate = new Date(event.start || '');
-        const eventEndDate = adjustEndDate(event.start ?? '', event.end ?? '');
-
-        const currentDayStart = new Date(day.year, day.month, day.num, 0, 0, 0); // Start of the day
-        const currentDayEnd = new Date(day.year, day.month, day.num, 23, 59, 59); // End of the day
-
-        return (
-            eventStartDate <= currentDayEnd && eventEndDate >= currentDayStart
-        );
-    });
-
-    // Get the top two colors
-    const colors = getDayEvents
-        .map(event => CATEGORY_COLORS[event.category || ''])
-        .filter(color => color !== CATEGORY_COLORS['uncategorized'])
-        .filter(Boolean);
-    const [color1, color2] = colors.length > 0 ? [colors[0], colors[1] || colors[0]] : ['white', 'white'];
-
-    return (
-        <Box
-            sx={{
-                width: '18px',
-                height: '18px',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                background: isEmpty
-                    ? 'white'
-                    : `linear-gradient(135deg, ${color1} 50%, ${color2} 50%)`,
-                border: '0px solid lightgrey',
-            }}
-        >
-            {!isEmpty && <Typography sx={{ fontSize: 8 }}>{day.num}</Typography>}
-        </Box>
-    );
-};
-
-
-export const MonthsGrid = ({ monthIndexes, calendarEvents }: { monthIndexes: number[], calendarEvents: CalendarEvent[] }) => {
-    const startMonth = MONTHS_DATA[monthIndexes[0]];
-
-    const startEmptyDays: DayProps[] = Array.from({ length: startMonth.startDay }, (_, i) => ({ year: 2024, num: i, month: 0, isEmpty: true }));
-    let allDays: DayProps[] = [...startEmptyDays];
-
-    monthIndexes.forEach((monthIndex) => {
-        const month = MONTHS_DATA[monthIndex];
-        const monthDays: DayProps[] = Array.from({ length: month.days }, (_, i) => ({ year: 2024, num: i + 1, month: monthIndex, isEmpty: false }));
-        allDays = [...allDays, ...monthDays];
-    });
-
-    return (
-        <Grid container width={'129px'}>
-            {allDays.map((day, index) => (
-                <Grid key={`${day.month}-${day.num}-${index}`}>
-                    <DateSquare day={day} events={calendarEvents} isEmpty={day.isEmpty} />
-                </Grid>
-            ))}
-        </Grid>
-    )
-};
-
-export const CalendarGridWaterMark = () => {
-    return (
-        <Box
-            sx={{
-                position: 'relative',
-                width: '100%',
-                textAlign: 'center',
-                marginTop: '15px',
-                fontSize: '10px',
-                fontStyle: 'italic',
-                color: 'rgba(0, 0, 0, 0.3)', // Faint gray color
-            }}
-        >
-            Made by {APP_NAME} at{" "}
-            <Link
-                href={APP_SITE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                underline="none"
-                sx={{
-                    color: 'rgba(0, 0, 0, 0.3)',
-                }}
-            >
-                {APP_SITE_URL.replace(/^https?:\/\//, '')}
-            </Link>
-        </Box>
-    );
-};
-
-
-export const CalendarGrid = ({ categorizedEvents }: { categorizedEvents: CategorizedEvents }) => {
-    const calendarEvents = Object.values(categorizedEvents).flat();
-
-    return (
-        <Box style={{
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '5px',
-            borderRadius: '8px',
-            width: '100%',
-        }}>
-            <Box display={'flex'} justifyContent={'center'}>
-                <ColorLegend />
-            </Box>
-            <Box style={{
-                display: 'flex',
-                borderRadius: '8px',
-                justifyContent: 'center',
-            }}>
-                <Box width={"auto"} display={'flex'} flexDirection={'row'} gap={"0px"} >
-                    <MonthsGrid monthIndexes={[0, 1, 2, 3]} calendarEvents={calendarEvents} />
-                    <MonthsGrid monthIndexes={[4, 5, 6, 7]} calendarEvents={calendarEvents} />
-                    <MonthsGrid monthIndexes={[8, 9, 10, 11]} calendarEvents={calendarEvents} />
-                </Box >
-            </Box>
-        </Box>
-    );
+type Props = {
+  mode: ProductMode
+  categorizedEvents: CategorizedEvents
+  year?: number
+  monthIndex?: number
+  showStats?: boolean
+  totalDays?: number
 }
 
+export function SnapshotCalendar({
+  mode,
+  categorizedEvents,
+  year = DEFAULT_YEAR,
+  monthIndex = 0,
+  showStats = false,
+  totalDays = 365,
+}: Props) {
+  const events = Object.values(categorizedEvents).flat()
+  const period =
+    mode === 'monthify' ? `${MONTH_NAMES[monthIndex]} ${year}` : String(year)
 
+  const stats =
+    showStats && Object.keys(categorizedEvents).length > 0
+      ? getStats(categorizedEvents, totalDays)
+      : null
+  const mostEventfulDay =
+    showStats && Object.keys(categorizedEvents).length > 0
+      ? getMostEventfulDay(categorizedEvents)
+      : null
+
+  return (
+    <div className="snapCard">
+      <header className="snapCard__header">
+        <h2 className="snapCard__period">{period}</h2>
+        <div
+          className="snapCard__legend"
+          aria-label={showStats ? 'Category stats' : 'Category legend'}
+        >
+          {LEGEND_ITEMS.map((item) => (
+            <span key={item.key} className="snapLegendItem">
+              <span
+                className="snapLegendItem__swatch"
+                style={{ background: CATEGORY_COLORS[item.key] }}
+              />
+              <span className="snapLegendItem__label">{item.label}</span>
+              {stats?.[item.key] ? (
+                <span className="snapLegendItem__value">{stats[item.key]}</span>
+              ) : null}
+            </span>
+          ))}
+        </div>
+        {mostEventfulDay ? (
+          <p className="snapCard__meta">
+            Busiest day · {mostEventfulDay.date} ·{' '}
+            {mostEventfulDay.events.length}{' '}
+            {mostEventfulDay.events.length === 1 ? 'event' : 'events'}
+          </p>
+        ) : null}
+      </header>
+
+      <div className="snapCard__body">
+        {mode === 'yearify' ? (
+          <YearGrid year={year} events={events} />
+        ) : (
+          <MonthGrid
+            year={year}
+            monthIndex={monthIndex}
+            events={events}
+            size="lg"
+            showWeekdays
+          />
+        )}
+      </div>
+
+      <footer className="snapCard__footer">
+        {APP_SITE_URL.replace(/^https?:\/\//, '')}
+      </footer>
+    </div>
+  )
+}

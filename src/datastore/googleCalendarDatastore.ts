@@ -22,26 +22,18 @@ type GoogleCalendarEvent = {
   end?: { dateTime?: string; date?: string }
 }
 
-function mapGoogleEvent(
-  event: GoogleCalendarEvent,
-  year: number,
-): CalendarEvent | null {
+function mapGoogleEvent(event: GoogleCalendarEvent): CalendarEvent | null {
   if (!event.id) return null
 
   const startRaw = event.start?.dateTime || event.start?.date
   const endRaw = event.end?.dateTime || event.end?.date
   if (!startRaw || !endRaw) return null
 
-  const startDateTime = new Date(startRaw)
-  const endDateTime = new Date(endRaw)
-  startDateTime.setFullYear(year)
-  endDateTime.setFullYear(year)
-
   return {
     id: event.id,
     summary: event.summary ?? '(No title)',
-    start: startDateTime.toISOString(),
-    end: endDateTime.toISOString(),
+    start: new Date(startRaw).toISOString(),
+    end: new Date(endRaw).toISOString(),
     description: event.description,
     location: event.location,
     htmlLink: event.htmlLink,
@@ -70,7 +62,7 @@ class GoogleCalendarDatastore implements YearifyDatastore {
 
     const items = (response?.result?.items ?? []) as GoogleCalendarEvent[]
     return items
-      .map((event) => mapGoogleEvent(event, year))
+      .map(mapGoogleEvent)
       .filter((event): event is CalendarEvent => event !== null)
   }
 }

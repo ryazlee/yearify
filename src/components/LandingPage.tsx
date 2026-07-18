@@ -1,23 +1,27 @@
-import { APP_DESCRIPTION, APP_NAME, APP_TAGLINE } from '../lib/brand'
+import { PRODUCT_MODES, type ProductMode } from '../lib/productMode'
 import { AuthButton } from './auth/AuthButton'
 
-const publicUrl = process.env.PUBLIC_URL || ''
+type Props = {
+  mode: ProductMode
+}
 
-export default function LandingPage() {
+export default function LandingPage({ mode }: Props) {
+  const config = PRODUCT_MODES[mode]
+
   return (
     <section className="landing">
-      <h1 className="landing__brand">{APP_NAME}</h1>
-      <p className="landing__headline">{APP_TAGLINE}</p>
-      <p className="landing__lead">{APP_DESCRIPTION}</p>
+      <h1 className="landing__brand">{config.name}</h1>
+      <p className="landing__headline">{config.tagline}</p>
+      <p className="landing__lead">{config.description}</p>
       <div className="landing__cta">
         <AuthButton fullWidth />
       </div>
-      <div className="landing__visual">
-        <img
-          src={`${publicUrl}/media/demo-image.png`}
-          alt="Example Yearify year calendar visualization"
-        />
-      </div>
+      {mode === 'monthify' ? (
+        <p className="landing__note">
+          Same flow as Yearify — connect your calendar, categorize, and share a
+          single month.
+        </p>
+      ) : null}
     </section>
   )
 }

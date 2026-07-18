@@ -17,6 +17,9 @@ Use the mock datastore (no Google OAuth) with:
 REACT_APP_USE_MOCK=true npm start
 ```
 
+- Yearify: `/`
+- Monthify: `/monthify`
+
 ## Deploy
 
 Pushes to `main` deploy to [ryazlee.github.io/yearify](https://ryazlee.github.io/yearify) via GitHub Actions (GitHub Pages).
