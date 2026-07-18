@@ -18,6 +18,8 @@ REACT_APP_USE_MOCK=true npm start
 ```
 
 - Yearify: `/`
+- Halfify: `/halfify`
+- Quarterify: `/quarterify`
 - Monthify: `/monthify`
 
 ## Deploy

@@ -33,12 +33,24 @@ export function filterEventsForMonth(
   year: number,
   monthIndex: number,
 ): CalendarEvent[] {
-  const monthStart = new Date(year, monthIndex, 1)
-  const monthEnd = new Date(year, monthIndex + 1, 0, 23, 59, 59)
+  return filterEventsForMonths(events, year, [monthIndex])
+}
+
+/** Filter to a contiguous month range (quarter / half / month). */
+export function filterEventsForMonths(
+  events: CalendarEvent[],
+  year: number,
+  monthIndexes: number[],
+): CalendarEvent[] {
+  if (monthIndexes.length === 0) return []
+
+  const sorted = [...monthIndexes].sort((a, b) => a - b)
+  const rangeStart = new Date(year, sorted[0], 1)
+  const rangeEnd = new Date(year, sorted[sorted.length - 1] + 1, 0, 23, 59, 59)
 
   return events.filter((event) => {
     const start = new Date(event.start)
     const end = new Date(event.end)
-    return start <= monthEnd && end >= monthStart
+    return start <= rangeEnd && end >= rangeStart
   })
 }

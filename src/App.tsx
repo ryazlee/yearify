@@ -16,6 +16,14 @@ export default function App() {
             <Routes>
               <Route path="/" element={<SnapshotPage mode="yearify" />} />
               <Route
+                path="/halfify"
+                element={<SnapshotPage mode="halfify" />}
+              />
+              <Route
+                path="/quarterify"
+                element={<SnapshotPage mode="quarterify" />}
+              />
+              <Route
                 path="/monthify"
                 element={<SnapshotPage mode="monthify" />}
               />

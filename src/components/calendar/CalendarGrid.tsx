@@ -2,9 +2,14 @@ import type { CategorizedEvents } from '../types'
 import { CATEGORY_COLORS } from '../types'
 import { DEFAULT_YEAR } from '../../datastore/types'
 import { APP_SITE_URL } from '../../lib/brand'
-import { MONTH_NAMES, type ProductMode } from '../../lib/productMode'
+import {
+  formatPeriodLabel,
+  periodDayColumns,
+  quarterDayColumns,
+  type ProductMode,
+} from '../../lib/productMode'
 import { getMostEventfulDay, getStats } from '../stats/utils'
-import { MonthGrid, YearGrid } from './MonthGrid'
+import { MonthGrid, PeriodGrid } from './MonthGrid'
 
 const LEGEND_ITEMS = [
   { key: 'travel', label: 'Travel' },
@@ -18,6 +23,8 @@ type Props = {
   categorizedEvents: CategorizedEvents
   year?: number
   monthIndex?: number
+  quarterIndex?: number
+  halfIndex?: number
   showStats?: boolean
   totalDays?: number
 }
@@ -27,12 +34,17 @@ export function SnapshotCalendar({
   categorizedEvents,
   year = DEFAULT_YEAR,
   monthIndex = 0,
+  quarterIndex = 0,
+  halfIndex = 0,
   showStats = false,
   totalDays = 365,
 }: Props) {
   const events = Object.values(categorizedEvents).flat()
-  const period =
-    mode === 'monthify' ? `${MONTH_NAMES[monthIndex]} ${year}` : String(year)
+  const period = formatPeriodLabel(mode, year, {
+    monthIndex,
+    quarterIndex,
+    halfIndex,
+  })
 
   const stats =
     showStats && Object.keys(categorizedEvents).length > 0
@@ -74,15 +86,31 @@ export function SnapshotCalendar({
       </header>
 
       <div className="snapCard__body">
-        {mode === 'yearify' ? (
-          <YearGrid year={year} events={events} />
-        ) : (
+        {mode === 'monthify' ? (
           <MonthGrid
             year={year}
             monthIndex={monthIndex}
             events={events}
             size="lg"
             showWeekdays
+          />
+        ) : mode === 'quarterify' ? (
+          <PeriodGrid
+            year={year}
+            events={events}
+            columns={quarterDayColumns(year, quarterIndex)}
+            density="wide"
+          />
+        ) : (
+          <PeriodGrid
+            year={year}
+            events={events}
+            columns={periodDayColumns(
+              mode,
+              year,
+              mode === 'halfify' ? halfIndex : 0,
+            )}
+            density={mode === 'halfify' ? 'comfortable' : 'default'}
           />
         )}
       </div>

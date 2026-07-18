@@ -10,11 +10,15 @@ import { ReviewDeck } from './ReviewDeck'
 type Props = {
   categorizedEvents: CategorizedEvents
   onUpdate: (next: CategorizedEvents) => void
+  canUndo?: boolean
+  onUndo?: () => void
 }
 
 export default function CategorizerPanel({
   categorizedEvents,
   onUpdate,
+  canUndo = false,
+  onUndo,
 }: Props) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
@@ -43,6 +47,16 @@ export default function CategorizerPanel({
         </Box>
 
         <Box className="catPanel__actions">
+          {canUndo && onUndo ? (
+            <Button
+              variant="text"
+              size="small"
+              onClick={onUndo}
+              sx={{ color: 'text.secondary', flexShrink: 0 }}
+            >
+              Undo
+            </Button>
+          ) : null}
           {needsReview ? (
             <Button
               variant="contained"
@@ -86,6 +100,8 @@ export default function CategorizerPanel({
         onClose={() => setReviewOpen(false)}
         categorizedEvents={categorizedEvents}
         onUpdate={onUpdate}
+        canUndo={canUndo}
+        onUndo={onUndo}
       />
     </section>
   )

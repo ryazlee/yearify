@@ -4,11 +4,10 @@ import {
   daysInMonth,
   MONTH_NAMES,
   startDayOfMonth,
+  type DayRef,
 } from '../../lib/productMode'
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-
-type DayRef = { monthIndex: number; dayNum: number }
 
 type DayCellProps = {
   year: number
@@ -117,38 +116,43 @@ export function MonthGrid({
   )
 }
 
-/** Year view: three tight columns of continuous days (like the classic Yearify image). */
-export function YearGrid({
+/** Year / half / quarter view: continuous day columns (classic Yearify layout). */
+export function PeriodGrid({
   year,
   events,
+  columns,
+  density = 'default',
 }: {
   year: number
   events: CalendarEvent[]
+  columns: DayRef[][]
+  density?: 'default' | 'comfortable' | 'wide'
 }) {
-  const columns = [
-    [0, 1, 2, 3],
-    [4, 5, 6, 7],
-    [8, 9, 10, 11],
-  ]
-
   return (
-    <div className="snapYearColumns">
-      {columns.map((monthIndexes) => {
-        const leadPad = startDayOfMonth(year, monthIndexes[0])
-        const cells: Array<DayRef | null> = Array.from(
-          { length: leadPad },
-          () => null,
-        )
-
-        monthIndexes.forEach((monthIndex) => {
-          const days = daysInMonth(year, monthIndex)
-          for (let dayNum = 1; dayNum <= days; dayNum += 1) {
-            cells.push({ monthIndex, dayNum })
-          }
-        })
+    <div
+      className={`snapYearColumns${
+        density === 'wide'
+          ? ' snapYearColumns--wide'
+          : density === 'comfortable'
+            ? ' snapYearColumns--comfortable'
+            : ''
+      }`}
+    >
+      {columns.map((days, columnIndex) => {
+        const first = days[0]
+        const leadPad = first
+          ? new Date(year, first.monthIndex, first.dayNum).getDay()
+          : 0
+        const cells: Array<DayRef | null> = [
+          ...Array.from({ length: leadPad }, () => null),
+          ...days,
+        ]
 
         return (
-          <div key={monthIndexes[0]} className="snapYearColumn">
+          <div
+            key={first ? `${first.monthIndex}-${first.dayNum}` : columnIndex}
+            className="snapYearColumn"
+          >
             {cells.map((cell, index) =>
               cell ? (
                 <DayCell
@@ -162,7 +166,7 @@ export function YearGrid({
                 />
               ) : (
                 <div
-                  key={`pad-${monthIndexes[0]}-${index}`}
+                  key={`pad-${columnIndex}-${index}`}
                   className="snapDay snapDay--empty snapDay--sm"
                 />
               ),
@@ -171,5 +175,35 @@ export function YearGrid({
         )
       })}
     </div>
+  )
+}
+
+/** Full-year three-column grid. */
+export function YearGrid({
+  year,
+  events,
+}: {
+  year: number
+  events: CalendarEvent[]
+}) {
+  return (
+    <PeriodGrid
+      year={year}
+      events={events}
+      columns={[
+        [0, 1, 2, 3],
+        [4, 5, 6, 7],
+        [8, 9, 10, 11],
+      ].map((months) => {
+        const days: DayRef[] = []
+        months.forEach((monthIndex) => {
+          const count = daysInMonth(year, monthIndex)
+          for (let dayNum = 1; dayNum <= count; dayNum += 1) {
+            days.push({ monthIndex, dayNum })
+          }
+        })
+        return days
+      })}
+    />
   )
 }

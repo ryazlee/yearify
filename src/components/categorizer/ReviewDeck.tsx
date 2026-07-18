@@ -27,6 +27,8 @@ type Props = {
   onClose: () => void
   categorizedEvents: CategorizedEvents
   onUpdate: (next: CategorizedEvents) => void
+  canUndo?: boolean
+  onUndo?: () => void
 }
 
 const KEY_TO_CATEGORY: Record<string, ActionCategory> = {
@@ -41,6 +43,8 @@ export function ReviewDeck({
   onClose,
   categorizedEvents,
   onUpdate,
+  canUndo = false,
+  onUndo,
 }: Props) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
@@ -100,13 +104,23 @@ export function ReviewDeck({
       if (event.key === 'Backspace' || event.key === 'Delete') {
         event.preventDefault()
         handleDelete()
+        return
+      }
+      if (
+        (event.metaKey || event.ctrlKey) &&
+        event.key.toLowerCase() === 'z' &&
+        canUndo &&
+        onUndo
+      ) {
+        event.preventDefault()
+        onUndo()
       }
     }
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, current, categorizedEvents, remaining, index])
+  }, [isOpen, current, categorizedEvents, remaining, index, canUndo, onUndo])
 
   return (
     <Modal open={isOpen} onClose={onClose}>
@@ -199,6 +213,13 @@ export function ReviewDeck({
             </Box>
 
             <Box className="catReview__secondary">
+              <Button
+                variant="text"
+                onClick={onUndo}
+                disabled={!canUndo || !onUndo}
+              >
+                Undo
+              </Button>
               <Button variant="text" onClick={handleSkip} disabled={remaining <= 1}>
                 Skip
               </Button>
@@ -213,7 +234,7 @@ export function ReviewDeck({
                 color="text.secondary"
                 sx={{ display: 'block', textAlign: 'center', mt: 1.5 }}
               >
-                Keys 1–4 to file · S skip · Delete remove · Esc close
+                Keys 1–4 to file · S skip · ⌘Z undo · Delete remove · Esc close
               </Typography>
             ) : null}
           </>

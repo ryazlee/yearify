@@ -3,6 +3,7 @@ import type { CalendarEvent } from '../datastore/types'
 import { DEFAULT_YEAR } from '../datastore/types'
 import {
   filterEventsForMonth,
+  filterEventsForMonths,
   listYearEvents,
 } from '../services/calendarService'
 import { getQueryErrorMessage } from '../lib/getQueryErrorMessage'
@@ -20,6 +21,36 @@ export function useYearEvents(year: number = DEFAULT_YEAR): {
     queryKey: queryKeys.yearEvents(year),
     queryFn: () => listYearEvents(year),
     enabled: authenticated,
+  })
+
+  return {
+    events: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error
+      ? getQueryErrorMessage(query.error, 'Failed to load calendar events')
+      : null,
+  }
+}
+
+/**
+ * Monthify / Quarterify / Halfify read from the same `year-events` query.
+ * Switching modes for a cached year does not refetch.
+ */
+export function useMonthRangeEvents(
+  monthIndexes: number[],
+  year: number = DEFAULT_YEAR,
+): {
+  events: CalendarEvent[]
+  loading: boolean
+  error: string | null
+} {
+  const { authenticated } = useAuth()
+
+  const query = useQuery({
+    queryKey: queryKeys.yearEvents(year),
+    queryFn: () => listYearEvents(year),
+    enabled: authenticated && monthIndexes.length > 0,
+    select: (events) => filterEventsForMonths(events, year, monthIndexes),
   })
 
   return {

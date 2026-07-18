@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { DEFAULT_YEAR } from '../datastore/types'
-import { PRODUCT_MODES } from '../lib/productMode'
+import { PRODUCT_MODE_LIST } from '../lib/productMode'
 import { UserGuideModal } from './userGuide/UserGuideModal'
 
 type Props = {
@@ -31,23 +31,18 @@ export default function AppHeader({ year }: Props) {
       <Box component="header" className="appHeader">
         <div className="appHeader__inner">
           <nav className="appHeader__nav" aria-label="Product">
-            <NavLink
-              to={pathWithYear(PRODUCT_MODES.yearify.path, year)}
-              className={({ isActive }) =>
-                `appHeader__link${isActive ? ' is-active' : ''}`
-              }
-              end
-            >
-              Yearify
-            </NavLink>
-            <NavLink
-              to={pathWithYear(PRODUCT_MODES.monthify.path, year)}
-              className={({ isActive }) =>
-                `appHeader__link${isActive ? ' is-active' : ''}`
-              }
-            >
-              Monthify
-            </NavLink>
+            {PRODUCT_MODE_LIST.map((product) => (
+              <NavLink
+                key={product.id}
+                to={pathWithYear(product.path, year)}
+                className={({ isActive }) =>
+                  `appHeader__link${isActive ? ' is-active' : ''}`
+                }
+                end={product.path === '/'}
+              >
+                {product.name}
+              </NavLink>
+            ))}
           </nav>
 
           <div className="appHeader__right">

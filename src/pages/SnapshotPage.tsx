@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   FormControlLabel,
   MenuItem,
@@ -16,7 +16,7 @@ import AppHeader from '../components/AppHeader'
 import AppFooter from '../components/AppFooter'
 import LandingPage from '../components/LandingPage'
 import { useAuth } from '../contexts/AuthContext'
-import { useMonthEvents, useYearEvents } from '../hooks/useCalendar'
+import { useMonthRangeEvents, useYearEvents } from '../hooks/useCalendar'
 import { isMockDatastore } from '../services/calendarService'
 import {
   DEFAULT_YEAR,
@@ -25,9 +25,14 @@ import {
   yearOptions,
 } from '../datastore/types'
 import {
+  currentHalfIndex,
+  currentQuarterIndex,
   daysInMonth,
+  daysInMonths,
+  HALVES,
   MONTH_NAMES,
   PRODUCT_MODES,
+  QUARTERS,
   type ProductMode,
 } from '../lib/productMode'
 
@@ -41,15 +46,46 @@ export default function SnapshotPage({ mode }: Props) {
   const [searchParams, setSearchParams] = useSearchParams()
   const year = parseYearParam(searchParams.get('year')) ?? DEFAULT_YEAR
   const [monthIndex, setMonthIndex] = useState(() => new Date().getMonth())
+  const [quarterIndex, setQuarterIndex] = useState(() => currentQuarterIndex())
+  const [halfIndex, setHalfIndex] = useState(() => currentHalfIndex())
+
+  const rangeMonths = useMemo(() => {
+    if (mode === 'monthify') return [monthIndex]
+    if (mode === 'quarterify') return [...QUARTERS[quarterIndex].months]
+    if (mode === 'halfify') return [...HALVES[halfIndex].months]
+    return []
+  }, [mode, monthIndex, quarterIndex, halfIndex])
 
   const yearQuery = useYearEvents(year)
-  const monthQuery = useMonthEvents(monthIndex, year)
+  const rangeQuery = useMonthRangeEvents(rangeMonths, year)
   const { events, loading, error } =
-    mode === 'yearify' ? yearQuery : monthQuery
+    mode === 'yearify' ? yearQuery : rangeQuery
 
   const [categorizedEvents, setCategorizedEvents] =
     useState<CategorizedEvents | null>(null)
   const [showStats, setShowStats] = useState(false)
+  const historyRef = useRef<CategorizedEvents[]>([])
+  const [canUndo, setCanUndo] = useState(false)
+
+  const commitCategories = useCallback((next: CategorizedEvents) => {
+    setCategorizedEvents((current) => {
+      if (current) {
+        historyRef.current = [...historyRef.current.slice(-39), current]
+        setCanUndo(true)
+      }
+      return next
+    })
+  }, [])
+
+  const undoCategories = useCallback(() => {
+    const previous = historyRef.current.pop()
+    if (!previous) {
+      setCanUndo(false)
+      return
+    }
+    setCategorizedEvents(previous)
+    setCanUndo(historyRef.current.length > 0)
+  }, [])
 
   const setYear = (nextYear: number) => {
     setSearchParams(
@@ -66,20 +102,62 @@ export default function SnapshotPage({ mode }: Props) {
   useEffect(() => {
     if (!authenticated) {
       setCategorizedEvents(null)
+      historyRef.current = []
+      setCanUndo(false)
       return
     }
     if (loading) return
     if (error) {
       setCategorizedEvents(null)
+      historyRef.current = []
+      setCanUndo(false)
       return
     }
+    historyRef.current = []
+    setCanUndo(false)
     setCategorizedEvents(
       categorizeEvents(events.map((event) => ({ ...event }))),
     )
-  }, [authenticated, events, loading, error, mode, monthIndex, year])
+  }, [
+    authenticated,
+    events,
+    loading,
+    error,
+    mode,
+    monthIndex,
+    quarterIndex,
+    halfIndex,
+    year,
+  ])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'z') {
+        return
+      }
+      const target = event.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return
+      }
+      if (!canUndo) return
+      event.preventDefault()
+      undoCategories()
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [canUndo, undoCategories])
 
   const totalDays =
-    mode === 'monthify' ? daysInMonth(year, monthIndex) : daysInYear(year)
+    mode === 'monthify'
+      ? daysInMonth(year, monthIndex)
+      : mode === 'yearify'
+        ? daysInYear(year)
+        : daysInMonths(year, rangeMonths)
 
   return (
     <div className={`appShell${authenticated ? '' : ' appShell--landing'}`}>
@@ -118,6 +196,38 @@ export default function SnapshotPage({ mode }: Props) {
                       {MONTH_NAMES.map((name, index) => (
                         <MenuItem key={name} value={index}>
                           {name}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  ) : null}
+                  {mode === 'quarterify' ? (
+                    <TextField
+                      select
+                      size="small"
+                      label="Quarter"
+                      value={quarterIndex}
+                      onChange={(e) => setQuarterIndex(Number(e.target.value))}
+                      sx={{ minWidth: 120 }}
+                    >
+                      {QUARTERS.map((quarter) => (
+                        <MenuItem key={quarter.index} value={quarter.index}>
+                          {quarter.label}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  ) : null}
+                  {mode === 'halfify' ? (
+                    <TextField
+                      select
+                      size="small"
+                      label="Half"
+                      value={halfIndex}
+                      onChange={(e) => setHalfIndex(Number(e.target.value))}
+                      sx={{ minWidth: 120 }}
+                    >
+                      {HALVES.map((half) => (
+                        <MenuItem key={half.index} value={half.index}>
+                          {half.label}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -169,6 +279,8 @@ export default function SnapshotPage({ mode }: Props) {
                         categorizedEvents={categorizedEvents}
                         year={year}
                         monthIndex={monthIndex}
+                        quarterIndex={quarterIndex}
+                        halfIndex={halfIndex}
                         showStats={showStats}
                         totalDays={totalDays}
                       />
@@ -177,7 +289,9 @@ export default function SnapshotPage({ mode }: Props) {
 
                   <CategorizerPanel
                     categorizedEvents={categorizedEvents}
-                    onUpdate={setCategorizedEvents}
+                    onUpdate={commitCategories}
+                    canUndo={canUndo}
+                    onUndo={undoCategories}
                   />
                 </>
               )}

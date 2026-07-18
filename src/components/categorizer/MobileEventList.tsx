@@ -152,6 +152,19 @@ export function MobileEventList({
                     />
                   ),
                 )}
+                {event.category && event.category !== 'uncategorized' ? (
+                  <Chip
+                    size="small"
+                    label="Clear"
+                    clickable
+                    variant="outlined"
+                    onClick={() =>
+                      onUpdate(
+                        moveEvent(categorizedEvents, event.id, 'uncategorized'),
+                      )
+                    }
+                  />
+                ) : null}
               </Box>
             </Paper>
           ))}

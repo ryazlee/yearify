@@ -16,11 +16,8 @@ export default function LandingPage({ mode }: Props) {
       <div className="landing__cta">
         <AuthButton fullWidth />
       </div>
-      {mode === 'monthify' ? (
-        <p className="landing__note">
-          Same flow as Yearify — connect your calendar, categorize, and share a
-          single month.
-        </p>
+      {config.landingNote ? (
+        <p className="landing__note">{config.landingNote}</p>
       ) : null}
     </section>
   )
