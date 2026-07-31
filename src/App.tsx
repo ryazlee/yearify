@@ -1,11 +1,30 @@
+import { useEffect } from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from 'react-router-dom'
 import MuiAppProvider from './components/MuiAppProvider'
 import { AuthProvider } from './contexts/AuthContext'
+import { trackPageview } from './lib/analytics'
 import { queryClient } from './lib/queryClient'
 import SnapshotPage from './pages/SnapshotPage'
 
 const basename = (process.env.PUBLIC_URL || '').replace(/\/$/, '')
+
+function RouteAnalytics() {
+  const location = useLocation()
+
+  useEffect(() => {
+    // Use the real browser path so GitHub Pages base (/yearify/) is included.
+    trackPageview()
+  }, [location.pathname, location.search, location.hash])
+
+  return null
+}
 
 export default function App() {
   return (
@@ -13,6 +32,7 @@ export default function App() {
       <MuiAppProvider>
         <AuthProvider>
           <BrowserRouter basename={basename || undefined}>
+            <RouteAnalytics />
             <Routes>
               <Route path="/" element={<SnapshotPage mode="yearify" />} />
               <Route
