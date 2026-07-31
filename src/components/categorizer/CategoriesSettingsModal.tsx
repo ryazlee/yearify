@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   Box,
   Button,
@@ -158,12 +158,6 @@ export function CategoriesSettingsModal({ open, onClose }: Props) {
   } = useCategories()
   const [newName, setNewName] = useState('')
 
-  const editable = useMemo(
-    () => categories.filter((c) => c.id !== UNCATEGORIZED_ID),
-    [categories],
-  )
-  const uncategorized = categories.find((c) => c.id === UNCATEGORIZED_ID)
-
   const handleAdd = () => {
     const label = newName.trim()
     if (!label) return
@@ -185,8 +179,8 @@ export function CategoriesSettingsModal({ open, onClose }: Props) {
             Categories
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            Defaults stay put. Add your own, tweak colors, and teach keywords.
-            Saved on this device.
+            Add, remove, or tweak categories and keywords. Changes save on this
+            device. Use Reset defaults to restore the originals.
           </Typography>
         </Box>
         <IconButton size="small" onClick={onClose} aria-label="Close categories">
@@ -195,24 +189,18 @@ export function CategoriesSettingsModal({ open, onClose }: Props) {
       </DialogTitle>
 
       <DialogContent dividers sx={{ display: 'grid', gap: 1.5 }}>
-        {editable.map((category) => (
+        {categories.map((category) => (
           <CategoryEditor
             key={category.id}
             category={category}
             onChange={(patch) => updateCategory(category.id, patch)}
             onRemove={
-              category.builtin
+              category.id === UNCATEGORIZED_ID
                 ? undefined
                 : () => removeCategory(category.id)
             }
           />
         ))}
-        {uncategorized ? (
-          <CategoryEditor
-            category={uncategorized}
-            onChange={(patch) => updateCategory(uncategorized.id, patch)}
-          />
-        ) : null}
 
         <Box className="catSettings__add">
           <TextField
@@ -245,7 +233,7 @@ export function CategoriesSettingsModal({ open, onClose }: Props) {
           onClick={() => {
             if (
               window.confirm(
-                'Reset all categories to the Yearify defaults? Custom categories will be removed.',
+                'Reset all categories to the Yearify defaults? Removed presets come back and custom categories are cleared.',
               )
             ) {
               resetCategories()

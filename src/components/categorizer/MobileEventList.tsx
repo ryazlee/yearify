@@ -11,7 +11,12 @@ import LinkIcon from '@mui/icons-material/Link'
 import { useCategories } from '../../contexts/CategoryContext'
 import { UNCATEGORIZED_ID, type Category } from '../../lib/categories'
 import type { CalendarEvent, CategorizedEvents } from '../types'
-import { deleteEvent, moveEvent } from '../categorizer/utils'
+import {
+  deleteEvent,
+  eventCategories,
+  setEventCategories,
+  toggleEventCategory,
+} from '../categorizer/utils'
 
 type Props = {
   categorizedEvents: CategorizedEvents
@@ -80,106 +85,113 @@ export function MobileEventList({
           color="text.secondary"
           sx={{ textAlign: 'center', py: 3, fontSize: '0.9rem' }}
         >
-          No events in {categories.find((c) => c.id === activeCategory)?.label ?? activeCategory}.
+          No events in{' '}
+          {categories.find((c) => c.id === activeCategory)?.label ??
+            activeCategory}
+          .
         </Typography>
       ) : (
         <Box className="catMobile__list">
-          {events.map((event) => (
-            <Paper key={event.id} className="catMobile__card" elevation={0}>
-              <Box className="catMobile__cardTop">
-                <Box sx={{ minWidth: 0, flex: 1 }}>
-                  <Typography
-                    sx={{
-                      fontWeight: 600,
-                      fontSize: '0.9rem',
-                      letterSpacing: '-0.01em',
-                    }}
-                    noWrap
-                  >
-                    {event.summary || 'Untitled event'}
-                  </Typography>
-                  <Typography
-                    variant="caption"
-                    color="text.secondary"
-                    sx={{ display: 'block' }}
-                  >
-                    {formatWhen(event)}
-                    {event.location ? ` · ${event.location}` : ''}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', gap: 0.25 }}>
-                  {event.htmlLink ? (
+          {events.map((event) => {
+            const assigned = eventCategories(event)
+            return (
+              <Paper key={event.id} className="catMobile__card" elevation={0}>
+                <Box className="catMobile__cardTop">
+                  <Box sx={{ minWidth: 0, flex: 1 }}>
+                    <Typography
+                      sx={{
+                        fontWeight: 600,
+                        fontSize: '0.9rem',
+                        letterSpacing: '-0.01em',
+                      }}
+                      noWrap
+                    >
+                      {event.summary || 'Untitled event'}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      color="text.secondary"
+                      sx={{ display: 'block' }}
+                    >
+                      {formatWhen(event)}
+                      {event.location ? ` · ${event.location}` : ''}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: 0.25 }}>
+                    {event.htmlLink ? (
+                      <IconButton
+                        size="small"
+                        aria-label="Open in Google Calendar"
+                        onClick={() => window.open(event.htmlLink, '_blank')}
+                      >
+                        <LinkIcon fontSize="small" />
+                      </IconButton>
+                    ) : null}
                     <IconButton
                       size="small"
-                      aria-label="Open in Google Calendar"
-                      onClick={() => window.open(event.htmlLink, '_blank')}
+                      aria-label="Remove event"
+                      onClick={() =>
+                        onUpdate(
+                          deleteEvent(categorizedEvents, event.id, categories),
+                        )
+                      }
                     >
-                      <LinkIcon fontSize="small" />
+                      <DeleteIcon fontSize="small" />
                     </IconButton>
-                  ) : null}
-                  <IconButton
-                    size="small"
-                    aria-label="Remove event"
-                    onClick={() =>
-                      onUpdate(deleteEvent(categorizedEvents, event.id, categories))
-                    }
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
+                  </Box>
                 </Box>
-              </Box>
-              <Box className="catMobile__chips">
-                {actionCategories.map((category) => (
-                  <Chip
-                    key={category.id}
-                    size="small"
-                    label={category.label}
-                    clickable
-                    onClick={() =>
-                      onUpdate(
-                        moveEvent(
-                          categorizedEvents,
-                          event.id,
-                          category.id,
-                          categories,
-                        ),
-                      )
-                    }
-                    sx={{
-                      bgcolor:
-                        event.category === category.id
-                          ? colors[category.id]
-                          : 'transparent',
-                      border: '1px solid',
-                      borderColor:
-                        event.category === category.id
-                          ? 'transparent'
-                          : 'divider',
-                      fontWeight: event.category === category.id ? 600 : 500,
-                    }}
-                  />
-                ))}
-                {event.category && event.category !== UNCATEGORIZED_ID ? (
-                  <Chip
-                    size="small"
-                    label="Clear"
-                    clickable
-                    variant="outlined"
-                    onClick={() =>
-                      onUpdate(
-                        moveEvent(
-                          categorizedEvents,
-                          event.id,
-                          UNCATEGORIZED_ID,
-                          categories,
-                        ),
-                      )
-                    }
-                  />
-                ) : null}
-              </Box>
-            </Paper>
-          ))}
+                <Box className="catMobile__chips">
+                  {actionCategories.map((category) => {
+                    const selected = assigned.includes(category.id)
+                    return (
+                      <Chip
+                        key={category.id}
+                        size="small"
+                        label={category.label}
+                        clickable
+                        onClick={() =>
+                          onUpdate(
+                            toggleEventCategory(
+                              categorizedEvents,
+                              event.id,
+                              category.id,
+                              categories,
+                            ),
+                          )
+                        }
+                        sx={{
+                          bgcolor: selected
+                            ? colors[category.id]
+                            : 'transparent',
+                          border: '1px solid',
+                          borderColor: selected ? 'transparent' : 'divider',
+                          fontWeight: selected ? 600 : 500,
+                        }}
+                      />
+                    )
+                  })}
+                  {assigned.length > 0 ? (
+                    <Chip
+                      size="small"
+                      label="Clear"
+                      clickable
+                      variant="outlined"
+                      onClick={() =>
+                        onUpdate(
+                          setEventCategories(
+                            categorizedEvents,
+                            event.id,
+                            [],
+                            categories,
+                          ),
+                        )
+                      }
+                    />
+                  ) : null}
+                </Box>
+              </Paper>
+            )
+          })}
         </Box>
       )}
 
@@ -189,7 +201,7 @@ export function MobileEventList({
           color="text.secondary"
           sx={{ display: 'block', textAlign: 'center', mt: 1 }}
         >
-          Tap a category chip to file each event.
+          Tap category chips to assign — events can have more than one.
         </Typography>
       ) : null}
     </Box>

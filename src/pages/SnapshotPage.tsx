@@ -10,9 +10,12 @@ import { useSearchParams } from 'react-router-dom'
 import type { CategorizedEvents } from '../components/types'
 import {
   categorizeEvents,
-  emptyCategorizedEvents,
+  eventCategories,
+  indexCategorizedEvents,
   reshapeCategorizedEvents,
-  suggestCategory,
+  suggestCategories,
+  uniqueEvents,
+  withEventCategories,
 } from '../components/categorizer/utils'
 import CategorizerPanel from '../components/categorizer/CategorizerPanel'
 import DownloadableComponent from '../components/downloadableImage/DownloadableComponent'
@@ -147,19 +150,20 @@ export default function SnapshotPage({ mode }: Props) {
     setCategorizedEvents((current) => {
       if (!current) return current
       const reshaped = reshapeCategorizedEvents(current, categories)
-      const next = emptyCategorizedEvents(categories)
+      const valid = new Set(
+        categories.map((c) => c.id).filter((id) => id !== UNCATEGORIZED_ID),
+      )
 
-      Object.entries(reshaped).forEach(([id, list]) => {
-        if (id === UNCATEGORIZED_ID) return
-        next[id] = list.map((event) => ({ ...event }))
+      const events = uniqueEvents(reshaped).map((event) => {
+        const assigned = eventCategories(event).filter((id) => valid.has(id))
+        if (assigned.length > 0) {
+          return withEventCategories(event, assigned)
+        }
+        // Re-score only still-uncategorized events when keywords/categories change.
+        return withEventCategories(event, suggestCategories(event, categories))
       })
 
-      ;(reshaped[UNCATEGORIZED_ID] ?? []).forEach((event) => {
-        const category = suggestCategory(event, categories)
-        next[category].push({ ...event, category })
-      })
-
-      return next
+      return indexCategorizedEvents(events, categories)
     })
   }, [categories])
 

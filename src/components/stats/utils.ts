@@ -1,4 +1,6 @@
 import type { CalendarEvent, CategorizedEvents } from '../types'
+import { uniqueEvents } from '../categorizer/utils'
+import { UNCATEGORIZED_ID } from '../../lib/categories'
 
 export const getStats = (
   categorizedEvents: CategorizedEvents,
@@ -7,6 +9,8 @@ export const getStats = (
   const stats: Record<string, string> = {}
 
   for (const category in categorizedEvents) {
+    if (category === UNCATEGORIZED_ID) continue
+
     let categoryDayCount = 0
     const categoryEvents = categorizedEvents[category] ?? []
 
@@ -43,12 +47,10 @@ export const getMostEventfulDay = (
 ): { date: string; events: CalendarEvent[] } | null => {
   const eventMap: Record<string, CalendarEvent[]> = {}
 
-  Object.values(categorizedEvents).forEach((events) => {
-    events.forEach((event) => {
-      const date = extractDate(event.start)
-      if (!eventMap[date]) eventMap[date] = []
-      eventMap[date].push(event)
-    })
+  uniqueEvents(categorizedEvents).forEach((event) => {
+    const date = extractDate(event.start)
+    if (!eventMap[date]) eventMap[date] = []
+    eventMap[date].push(event)
   })
 
   let maxDate: string | null = null

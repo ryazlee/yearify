@@ -1,5 +1,6 @@
 import { useCategories } from '../../contexts/CategoryContext'
 import type { CategorizedEvents } from '../types'
+import { uniqueEvents } from '../categorizer/utils'
 import { DEFAULT_YEAR } from '../../datastore/types'
 import { APP_SITE_URL } from '../../lib/brand'
 import {
@@ -33,7 +34,7 @@ export function SnapshotCalendar({
   totalDays = 365,
 }: Props) {
   const { actionCategories, colors } = useCategories()
-  const events = Object.values(categorizedEvents).flat()
+  const events = uniqueEvents(categorizedEvents)
   const period = formatPeriodLabel(mode, year, {
     monthIndex,
     quarterIndex,
@@ -41,11 +42,11 @@ export function SnapshotCalendar({
   })
 
   const stats =
-    showStats && Object.keys(categorizedEvents).length > 0
+    showStats && events.length > 0
       ? getStats(categorizedEvents, totalDays)
       : null
   const mostEventfulDay =
-    showStats && Object.keys(categorizedEvents).length > 0
+    showStats && events.length > 0
       ? getMostEventfulDay(categorizedEvents)
       : null
 

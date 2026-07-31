@@ -13,7 +13,11 @@ import LinkIcon from '@mui/icons-material/Link'
 import { useCategories } from '../../contexts/CategoryContext'
 import { UNCATEGORIZED_ID, type Category } from '../../lib/categories'
 import type { CategorizedEvents } from '../types'
-import { deleteEvent, moveEvent } from '../categorizer/utils'
+import {
+  deleteEvent,
+  eventCategories,
+  setEventCategories,
+} from '../categorizer/utils'
 
 type Props = {
   isOpen: boolean
@@ -37,6 +41,7 @@ export function ReviewDeck({
   const { actionCategories, categories, colors } = useCategories()
   const queue = categorizedEvents[UNCATEGORIZED_ID] ?? []
   const [index, setIndex] = useState(0)
+  const [draft, setDraft] = useState<string[]>([])
 
   const keyMap = useMemo(() => {
     const map: Record<string, Category> = {}
@@ -60,9 +65,28 @@ export function ReviewDeck({
   const current = queue.length > 0 ? queue[Math.min(index, queue.length - 1)] : null
   const remaining = queue.length
 
-  const handleCategorize = (category: Category) => {
+  useEffect(() => {
+    setDraft(current ? eventCategories(current) : [])
+  }, [current?.id])
+
+  const toggleDraft = (categoryId: Category) => {
+    setDraft((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId],
+    )
+  }
+
+  const commitAndAdvance = () => {
     if (!current) return
-    onUpdate(moveEvent(categorizedEvents, current.id, category, categories))
+    onUpdate(
+      setEventCategories(categorizedEvents, current.id, draft, categories),
+    )
+  }
+
+  const handleSkip = () => {
+    if (remaining <= 1) return
+    setIndex((value) => (value + 1) % remaining)
   }
 
   const handleDelete = () => {
@@ -70,9 +94,10 @@ export function ReviewDeck({
     onUpdate(deleteEvent(categorizedEvents, current.id, categories))
   }
 
-  const handleSkip = () => {
-    if (remaining <= 1) return
-    setIndex((value) => (value + 1) % remaining)
+  const handleClear = () => {
+    if (!current) return
+    setDraft([])
+    onUpdate(setEventCategories(categorizedEvents, current.id, [], categories))
   }
 
   useEffect(() => {
@@ -88,7 +113,12 @@ export function ReviewDeck({
       const mapped = keyMap[event.key]
       if (mapped) {
         event.preventDefault()
-        handleCategorize(mapped)
+        toggleDraft(mapped)
+        return
+      }
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        if (draft.length > 0) commitAndAdvance()
         return
       }
       if (event.key === 's' || event.key === 'S') {
@@ -115,12 +145,22 @@ export function ReviewDeck({
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, current, categorizedEvents, remaining, index, canUndo, onUndo, keyMap])
+  }, [
+    isOpen,
+    current,
+    categorizedEvents,
+    remaining,
+    index,
+    canUndo,
+    onUndo,
+    keyMap,
+    draft,
+  ])
 
   const shortcutHint =
     actionCategories.length <= 9
-      ? `Keys 1–${Math.min(actionCategories.length, 9)} to file`
-      : 'Keys 1–9 to file first nine'
+      ? `Keys 1–${Math.min(actionCategories.length, 9)} toggle`
+      : 'Keys 1–9 toggle first nine'
 
   return (
     <Modal open={isOpen} onClose={onClose}>
@@ -140,7 +180,7 @@ export function ReviewDeck({
             <Typography variant="caption" color="text.secondary">
               {remaining === 0
                 ? 'All caught up'
-                : `${Math.min(index + 1, remaining)} of ${remaining} uncategorized`}
+                : `${Math.min(index + 1, remaining)} of ${remaining} uncategorized · tap all that apply`}
             </Typography>
           </Box>
           <IconButton size="small" onClick={onClose} aria-label="Close review">
@@ -192,26 +232,35 @@ export function ReviewDeck({
             </Box>
 
             <Box className="catReview__categories">
-              {actionCategories.map((category, i) => (
-                <Button
-                  key={category.id}
-                  className="catReview__category"
-                  onClick={() => handleCategorize(category.id)}
-                  sx={{
-                    bgcolor: colors[category.id],
-                    color: '#111827',
-                    '&:hover': {
-                      bgcolor: colors[category.id],
-                      opacity: 0.92,
-                    },
-                  }}
-                >
-                  {i < 9 ? (
-                    <span className="catReview__categoryKey">{i + 1}</span>
-                  ) : null}
-                  <span className="catReview__categoryLabel">{category.label}</span>
-                </Button>
-              ))}
+              {actionCategories.map((category, i) => {
+                const selected = draft.includes(category.id)
+                return (
+                  <Button
+                    key={category.id}
+                    className={`catReview__category${selected ? ' is-selected' : ''}`}
+                    onClick={() => toggleDraft(category.id)}
+                    sx={{
+                      bgcolor: selected ? colors[category.id] : 'transparent',
+                      color: '#111827',
+                      border: '1px solid',
+                      borderColor: selected
+                        ? 'transparent'
+                        : 'rgba(17,24,39,0.16)',
+                      '&:hover': {
+                        bgcolor: colors[category.id],
+                        opacity: selected ? 0.92 : 0.85,
+                      },
+                    }}
+                  >
+                    {i < 9 ? (
+                      <span className="catReview__categoryKey">{i + 1}</span>
+                    ) : null}
+                    <span className="catReview__categoryLabel">
+                      {category.label}
+                    </span>
+                  </Button>
+                )
+              })}
             </Box>
 
             <Box className="catReview__secondary">
@@ -225,10 +274,25 @@ export function ReviewDeck({
               <Button variant="text" onClick={handleSkip} disabled={remaining <= 1}>
                 Skip
               </Button>
+              <Button variant="text" onClick={handleClear} disabled={draft.length === 0}>
+                Clear
+              </Button>
               <Button variant="text" color="error" onClick={handleDelete}>
                 Remove
               </Button>
             </Box>
+
+            <Button
+              variant="contained"
+              fullWidth
+              disabled={draft.length === 0}
+              onClick={commitAndAdvance}
+              sx={{ mt: 1.25 }}
+            >
+              {draft.length === 0
+                ? 'Select categories'
+                : `Save · ${draft.length} categor${draft.length === 1 ? 'y' : 'ies'}`}
+            </Button>
 
             {!isMobile ? (
               <Typography
@@ -236,7 +300,7 @@ export function ReviewDeck({
                 color="text.secondary"
                 sx={{ display: 'block', textAlign: 'center', mt: 1.5 }}
               >
-                {shortcutHint} · S skip · ⌘Z undo · Delete remove · Esc close
+                {shortcutHint} · Enter save · S skip · ⌘Z undo · Delete remove · Esc close
               </Typography>
             ) : null}
           </>

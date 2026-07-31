@@ -7,7 +7,7 @@ export type CategoryDefinition = {
   label: string
   color: string
   keywords: string[]
-  /** Built-in defaults cannot be deleted. */
+  /** Built-in preset (can be removed; restored via Reset defaults). */
   builtin: boolean
 }
 
@@ -136,7 +136,6 @@ export function createDefaultCategories(): CategoryDefinition[] {
   }))
 
   return [
-    ...action,
     {
       id: UNCATEGORIZED_ID,
       label: BUILTIN_LABELS[UNCATEGORIZED_ID],
@@ -144,6 +143,7 @@ export function createDefaultCategories(): CategoryDefinition[] {
       keywords: [],
       builtin: true,
     },
+    ...action,
   ]
 }
 
@@ -184,6 +184,7 @@ export function categoryIds(categories: CategoryDefinition[]): string[] {
 
 export function loadCategories(): CategoryDefinition[] {
   const defaults = createDefaultCategories()
+  const defaultById = new Map(defaults.map((c) => [c.id, c]))
 
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -198,34 +199,40 @@ export function loadCategories(): CategoryDefinition[] {
       .map(normalizeStored)
       .filter((c): c is CategoryDefinition => c !== null)
 
-    const storedById = new Map(stored.map((c) => [c.id, c]))
+    // Stored list is authoritative — omitted presets stay removed.
+    const loaded: CategoryDefinition[] = []
+    const seen = new Set<string>()
 
-    const builtins = defaults.map((def) => {
-      const override = storedById.get(def.id)
-      storedById.delete(def.id)
-      if (!override) return def
-      return {
-        ...def,
-        label: override.label || def.label,
-        color: override.color || def.color,
-        keywords: override.keywords,
-        builtin: true,
+    for (const item of stored) {
+      if (seen.has(item.id) || item.id === UNCATEGORIZED_ID) continue
+      seen.add(item.id)
+
+      const preset = defaultById.get(item.id)
+      if (preset) {
+        loaded.push({
+          ...preset,
+          label: item.label || preset.label,
+          color: item.color || preset.color,
+          keywords: item.keywords,
+          builtin: true,
+        })
+      } else {
+        loaded.push({ ...item, builtin: false })
       }
-    })
+    }
 
-    const custom = Array.from(storedById.values())
-      .filter((c) => c.id !== UNCATEGORIZED_ID)
-      .map((c) => ({ ...c, builtin: false }))
+    const uncategorizedStored = stored.find((c) => c.id === UNCATEGORIZED_ID)
+    const uncategorizedDefault = defaultById.get(UNCATEGORIZED_ID)!
+    const uncategorized: CategoryDefinition = uncategorizedStored
+      ? {
+          ...uncategorizedDefault,
+          label: uncategorizedStored.label || uncategorizedDefault.label,
+          color: uncategorizedStored.color || uncategorizedDefault.color,
+          builtin: true,
+        }
+      : uncategorizedDefault
 
-    const uncategorized =
-      builtins.find((c) => c.id === UNCATEGORIZED_ID) ??
-      defaults.find((c) => c.id === UNCATEGORIZED_ID)!
-
-    return [
-      ...builtins.filter((c) => c.id !== UNCATEGORIZED_ID),
-      ...custom,
-      uncategorized,
-    ]
+    return [uncategorized, ...loaded]
   } catch {
     return defaults
   }

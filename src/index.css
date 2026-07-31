@@ -431,7 +431,7 @@ body {
 
 .snapCard__legend {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   justify-content: center;
   gap: 0.25rem;
   width: 100%;
@@ -451,8 +451,9 @@ body {
   font-size: 0.5625rem;
   font-weight: 600;
   color: #6b7280;
-  flex: 1 1 0;
+  flex: 0 1 auto;
   min-width: 0;
+  max-width: 100%;
   justify-content: center;
   white-space: nowrap;
 }

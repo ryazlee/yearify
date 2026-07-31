@@ -3,7 +3,10 @@ export type CalendarEvent = {
   summary: string
   start: string
   end: string
+  /** @deprecated Prefer `categories`. Kept for older in-memory state. */
   category?: string
+  /** Assigned category ids. Empty / missing means uncategorized. */
+  categories?: string[]
   description?: string
   location?: string
   htmlLink?: string

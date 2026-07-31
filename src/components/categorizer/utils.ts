@@ -9,9 +9,6 @@ import {
 /** Minimum absolute score to assign a category. */
 const MIN_SCORE = 10
 
-/** Winner must beat runner-up by this much (or leave uncategorized). */
-const MIN_MARGIN = 4
-
 /** Soft cap so one field cannot dominate with dozens of weak hits. */
 const FIELD_SCORE_CAP = 48
 
@@ -117,32 +114,52 @@ function scoreCategory(
   return score
 }
 
-export type CategorySuggestion = {
-  category: Category
-  score: number
-  margin: number
-}
-
-function scoredCategories(definitions: CategoryDefinition[]): CategoryDefinition[] {
+function scoredCategoryDefs(
+  definitions: CategoryDefinition[],
+): CategoryDefinition[] {
   return definitions.filter((c) => c.id !== UNCATEGORIZED_ID)
 }
 
-export function bestMatchScore(
-  event: CalendarEvent,
-  definitions: CategoryDefinition[],
-): number {
-  let best = 0
-  for (const category of scoredCategories(definitions)) {
-    best = Math.max(best, scoreCategory(event, category))
+/** Normalized category ids on an event (never includes uncategorized). */
+export function eventCategories(event: CalendarEvent): string[] {
+  if (Array.isArray(event.categories) && event.categories.length > 0) {
+    return Array.from(
+      new Set(
+        event.categories.filter(
+          (id) => typeof id === 'string' && id && id !== UNCATEGORIZED_ID,
+        ),
+      ),
+    )
   }
-  return best
+  if (event.category && event.category !== UNCATEGORIZED_ID) {
+    return [event.category]
+  }
+  return []
+}
+
+export function withEventCategories(
+  event: CalendarEvent,
+  categories: string[],
+): CalendarEvent {
+  const cleaned = Array.from(
+    new Set(
+      categories.filter(
+        (id) => typeof id === 'string' && id && id !== UNCATEGORIZED_ID,
+      ),
+    ),
+  )
+  return {
+    ...event,
+    categories: cleaned,
+    category: cleaned[0],
+  }
 }
 
 export function rankCategories(
   event: CalendarEvent,
   definitions: CategoryDefinition[],
 ): Array<{ category: Category; score: number }> {
-  return scoredCategories(definitions)
+  return scoredCategoryDefs(definitions)
     .map((category) => ({
       category: category.id,
       score: scoreCategory(event, category),
@@ -150,110 +167,189 @@ export function rankCategories(
     .sort((a, b) => b.score - a.score)
 }
 
-export function suggestCategoryDetailed(
+/** All categories that clear the confidence floor (multi-label). */
+export function suggestCategories(
   event: CalendarEvent,
   definitions: CategoryDefinition[],
-): CategorySuggestion {
-  const ranked = rankCategories(event, definitions)
-  const best = ranked[0]
-  const second = ranked[1]
-
-  if (!best) {
-    return { category: UNCATEGORIZED_ID, score: 0, margin: 0 }
-  }
-
-  const margin = best.score - (second?.score ?? 0)
-
-  if (best.score < MIN_SCORE || margin < MIN_MARGIN) {
-    return { category: UNCATEGORIZED_ID, score: best.score, margin }
-  }
-
-  return { category: best.category, score: best.score, margin }
-}
-
-export function suggestCategory(
-  event: CalendarEvent,
-  definitions: CategoryDefinition[],
-): Category {
-  return suggestCategoryDetailed(event, definitions).category
+): string[] {
+  return rankCategories(event, definitions)
+    .filter((entry) => entry.score >= MIN_SCORE)
+    .map((entry) => entry.category)
 }
 
 export function emptyCategorizedEvents(
   definitions: CategoryDefinition[],
 ): CategorizedEvents {
   const next: CategorizedEvents = {}
+  // Preserve definition order (uncategorized first).
   for (const category of definitions) {
     next[category.id] = []
   }
-  if (!next[UNCATEGORIZED_ID]) next[UNCATEGORIZED_ID] = []
+  if (!next[UNCATEGORIZED_ID]) {
+    return { [UNCATEGORIZED_ID]: [], ...next }
+  }
   return next
 }
 
+/** Unique events across buckets (multi-category events appear once). */
+export function uniqueEvents(categorized: CategorizedEvents): CalendarEvent[] {
+  const byId = new Map<string, CalendarEvent>()
+  Object.values(categorized).forEach((list) => {
+    list.forEach((event) => {
+      const existing = byId.get(event.id)
+      if (!existing) {
+        byId.set(event.id, withEventCategories(event, eventCategories(event)))
+        return
+      }
+      byId.set(
+        event.id,
+        withEventCategories(event, [
+          ...eventCategories(existing),
+          ...eventCategories(event),
+        ]),
+      )
+    })
+  })
+  return Array.from(byId.values())
+}
+
 export function countEvents(categorized: CategorizedEvents): number {
-  return Object.values(categorized).reduce((sum, list) => sum + list.length, 0)
+  return uniqueEvents(categorized).length
+}
+
+/** Build column buckets from events (an event may appear in multiple columns). */
+export function indexCategorizedEvents(
+  events: CalendarEvent[],
+  definitions: CategoryDefinition[],
+): CategorizedEvents {
+  const categorized = emptyCategorizedEvents(definitions)
+  const valid = new Set(
+    definitions.map((c) => c.id).filter((id) => id !== UNCATEGORIZED_ID),
+  )
+
+  events.forEach((event) => {
+    const cats = eventCategories(event).filter((id) => valid.has(id))
+    const normalized = withEventCategories(event, cats)
+    if (cats.length === 0) {
+      categorized[UNCATEGORIZED_ID].push(normalized)
+      return
+    }
+    cats.forEach((id) => {
+      categorized[id].push(normalized)
+    })
+  })
+
+  return categorized
 }
 
 export function categorizeEvents(
   events: CalendarEvent[],
   definitions: CategoryDefinition[],
 ): CategorizedEvents {
-  const categorized = emptyCategorizedEvents(definitions)
-
-  events.forEach((event) => {
-    const category = suggestCategory(event, definitions)
-    const bucket = categorized[category] ? category : UNCATEGORIZED_ID
-    categorized[bucket].push({ ...event, category: bucket })
-  })
-
-  return categorized
+  return indexCategorizedEvents(
+    events.map((event) =>
+      withEventCategories(event, suggestCategories(event, definitions)),
+    ),
+    definitions,
+  )
 }
 
-/** Keep existing assignments when category ids change; drop unknowns into uncategorized. */
+/** Keep assignments when category ids change; drop removed ids. */
 export function reshapeCategorizedEvents(
   categorized: CategorizedEvents,
   definitions: CategoryDefinition[],
 ): CategorizedEvents {
-  const next = emptyCategorizedEvents(definitions)
-  const valid = new Set(definitions.map((c) => c.id))
-
-  Object.entries(categorized).forEach(([category, events]) => {
-    events.forEach((event) => {
-      const target =
-        category && valid.has(category) ? category : UNCATEGORIZED_ID
-      next[target].push({ ...event, category: target })
-    })
-  })
-
-  return next
+  const valid = new Set(
+    definitions.map((c) => c.id).filter((id) => id !== UNCATEGORIZED_ID),
+  )
+  return indexCategorizedEvents(
+    uniqueEvents(categorized).map((event) =>
+      withEventCategories(
+        event,
+        eventCategories(event).filter((id) => valid.has(id)),
+      ),
+    ),
+    definitions,
+  )
 }
 
-export function moveEvent(
+export function setEventCategories(
   categorized: CategorizedEvents,
   eventId: string,
-  toCategory: Category,
+  categories: string[],
   definitions: CategoryDefinition[],
 ): CategorizedEvents {
-  const next = emptyCategorizedEvents(definitions)
-  let moved: CalendarEvent | null = null
-
-  Object.keys(categorized).forEach((category) => {
-    categorized[category].forEach((event) => {
-      if (event.id === eventId) {
-        moved = { ...event, category: toCategory }
-      } else if (next[category]) {
-        next[category].push(event)
-      } else {
-        next[UNCATEGORIZED_ID].push({ ...event, category: UNCATEGORIZED_ID })
-      }
-    })
+  const valid = new Set(
+    definitions.map((c) => c.id).filter((id) => id !== UNCATEGORIZED_ID),
+  )
+  const events = uniqueEvents(categorized).map((event) => {
+    if (event.id !== eventId) return event
+    return withEventCategories(
+      event,
+      categories.filter((id) => valid.has(id)),
+    )
   })
+  return indexCategorizedEvents(events, definitions)
+}
 
-  const dest = next[toCategory] ? toCategory : UNCATEGORIZED_ID
-  if (moved !== null) {
-    const event = moved as CalendarEvent
-    next[dest].push({ ...event, category: dest })
+export function toggleEventCategory(
+  categorized: CategorizedEvents,
+  eventId: string,
+  categoryId: Category,
+  definitions: CategoryDefinition[],
+): CategorizedEvents {
+  if (categoryId === UNCATEGORIZED_ID) {
+    return setEventCategories(categorized, eventId, [], definitions)
   }
-  return next
+
+  const event = uniqueEvents(categorized).find((item) => item.id === eventId)
+  if (!event) return categorized
+
+  const current = eventCategories(event)
+  const next = current.includes(categoryId)
+    ? current.filter((id) => id !== categoryId)
+    : [...current, categoryId]
+
+  return setEventCategories(categorized, eventId, next, definitions)
+}
+
+/** Add a category without removing others (used by board drag-onto). */
+export function addEventCategory(
+  categorized: CategorizedEvents,
+  eventId: string,
+  categoryId: Category,
+  definitions: CategoryDefinition[],
+): CategorizedEvents {
+  if (categoryId === UNCATEGORIZED_ID) {
+    return setEventCategories(categorized, eventId, [], definitions)
+  }
+  const event = uniqueEvents(categorized).find((item) => item.id === eventId)
+  if (!event) return categorized
+  const current = eventCategories(event)
+  if (current.includes(categoryId)) return categorized
+  return setEventCategories(
+    categorized,
+    eventId,
+    [...current, categoryId],
+    definitions,
+  )
+}
+
+/** Remove one category; event becomes uncategorized if none remain. */
+export function removeEventCategory(
+  categorized: CategorizedEvents,
+  eventId: string,
+  categoryId: Category,
+  definitions: CategoryDefinition[],
+): CategorizedEvents {
+  const event = uniqueEvents(categorized).find((item) => item.id === eventId)
+  if (!event) return categorized
+  return setEventCategories(
+    categorized,
+    eventId,
+    eventCategories(event).filter((id) => id !== categoryId),
+    definitions,
+  )
 }
 
 export function deleteEvent(
@@ -261,10 +357,8 @@ export function deleteEvent(
   eventId: string,
   definitions: CategoryDefinition[],
 ): CategorizedEvents {
-  const next = emptyCategorizedEvents(definitions)
-  Object.keys(categorized).forEach((category) => {
-    if (!next[category]) return
-    next[category] = categorized[category].filter((event) => event.id !== eventId)
-  })
-  return next
+  return indexCategorizedEvents(
+    uniqueEvents(categorized).filter((event) => event.id !== eventId),
+    definitions,
+  )
 }

@@ -1,5 +1,6 @@
 import type { CalendarEvent } from '../datastore/types'
 import { UNCATEGORIZED_ID } from './categories'
+import { eventCategories } from '../components/categorizer/utils'
 
 /** Unique categorized colors for a day, in definition order. */
 export function dayColors(
@@ -7,14 +8,13 @@ export function dayColors(
   colorById: Record<string, string>,
   order: string[],
 ): string[] {
-  const present = new Set(
-    events
-      .map((event) => event.category)
-      .filter((category): category is string => {
-        if (!category || category === UNCATEGORIZED_ID) return false
-        return Boolean(colorById[category])
-      }),
-  )
+  const present = new Set<string>()
+  events.forEach((event) => {
+    eventCategories(event).forEach((category) => {
+      if (category === UNCATEGORIZED_ID) return
+      if (colorById[category]) present.add(category)
+    })
+  })
 
   const ordered = order.filter((category) => present.has(category))
   const extras = Array.from(present).filter(

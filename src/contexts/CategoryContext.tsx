@@ -75,9 +75,9 @@ export function CategoryProvider({ children }: PropsWithChildren) {
         const uncategorized = current.find((c) => c.id === UNCATEGORIZED_ID)
         const rest = current.filter((c) => c.id !== UNCATEGORIZED_ID)
         const next = [
+          ...(uncategorized ? [uncategorized] : []),
           ...rest,
           created,
-          ...(uncategorized ? [uncategorized] : []),
         ]
         saveCategories(next)
         return next
@@ -120,8 +120,8 @@ export function CategoryProvider({ children }: PropsWithChildren) {
 
   const removeCategory = useCallback((id: string) => {
     setCategories((current) => {
-      const target = current.find((c) => c.id === id)
-      if (!target || target.builtin || id === UNCATEGORIZED_ID) return current
+      if (id === UNCATEGORIZED_ID) return current
+      if (!current.some((c) => c.id === id)) return current
       const next = current.filter((c) => c.id !== id)
       saveCategories(next)
       return next
