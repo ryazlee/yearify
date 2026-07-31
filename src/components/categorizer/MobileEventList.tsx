@@ -8,13 +8,9 @@ import {
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import LinkIcon from '@mui/icons-material/Link'
-import {
-  CATEGORIES,
-  CATEGORY_COLORS,
-  type CalendarEvent,
-  type CategorizedEvents,
-  type Category,
-} from '../types'
+import { useCategories } from '../../contexts/CategoryContext'
+import { UNCATEGORIZED_ID, type Category } from '../../lib/categories'
+import type { CalendarEvent, CategorizedEvents } from '../types'
 import { deleteEvent, moveEvent } from '../categorizer/utils'
 
 type Props = {
@@ -36,36 +32,43 @@ export function MobileEventList({
   onUpdate,
   focusCategory,
 }: Props) {
+  const { categories, actionCategories, colors } = useCategories()
   const [activeCategory, setActiveCategory] = useState<Category>(
-    focusCategory ?? 'uncategorized',
+    focusCategory ?? UNCATEGORIZED_ID,
   )
 
   useEffect(() => {
     if (focusCategory) setActiveCategory(focusCategory)
   }, [focusCategory])
 
-  const events = categorizedEvents[activeCategory]
+  useEffect(() => {
+    if (!categories.some((c) => c.id === activeCategory)) {
+      setActiveCategory(UNCATEGORIZED_ID)
+    }
+  }, [categories, activeCategory])
+
+  const events = categorizedEvents[activeCategory] ?? []
 
   return (
     <Box className="catMobile">
       <Box className="catMobile__tabs">
-        {CATEGORIES.map((category) => {
-          const count = categorizedEvents[category].length
+        {categories.map((category) => {
+          const count = categorizedEvents[category.id]?.length ?? 0
           return (
             <button
-              key={category}
+              key={category.id}
               type="button"
               className={`catMobile__tab${
-                activeCategory === category ? ' is-active' : ''
+                activeCategory === category.id ? ' is-active' : ''
               }`}
               style={
-                activeCategory === category
-                  ? { background: CATEGORY_COLORS[category] }
+                activeCategory === category.id
+                  ? { background: colors[category.id] }
                   : undefined
               }
-              onClick={() => setActiveCategory(category)}
+              onClick={() => setActiveCategory(category.id)}
             >
-              <span className="catMobile__tabLabel">{category}</span>
+              <span className="catMobile__tabLabel">{category.label}</span>
               <span className="catMobile__tabCount">{count}</span>
             </button>
           )
@@ -77,7 +80,7 @@ export function MobileEventList({
           color="text.secondary"
           sx={{ textAlign: 'center', py: 3, fontSize: '0.9rem' }}
         >
-          No events in {activeCategory}.
+          No events in {categories.find((c) => c.id === activeCategory)?.label ?? activeCategory}.
         </Typography>
       ) : (
         <Box className="catMobile__list">
@@ -117,42 +120,46 @@ export function MobileEventList({
                   <IconButton
                     size="small"
                     aria-label="Remove event"
-                    onClick={() => onUpdate(deleteEvent(categorizedEvents, event.id))}
+                    onClick={() =>
+                      onUpdate(deleteEvent(categorizedEvents, event.id, categories))
+                    }
                   >
                     <DeleteIcon fontSize="small" />
                   </IconButton>
                 </Box>
               </Box>
               <Box className="catMobile__chips">
-                {CATEGORIES.filter((c) => c !== 'uncategorized').map(
-                  (category) => (
-                    <Chip
-                      key={category}
-                      size="small"
-                      label={category}
-                      clickable
-                      onClick={() =>
-                        onUpdate(
-                          moveEvent(categorizedEvents, event.id, category),
-                        )
-                      }
-                      sx={{
-                        textTransform: 'capitalize',
-                        bgcolor:
-                          event.category === category
-                            ? CATEGORY_COLORS[category]
-                            : 'transparent',
-                        border: '1px solid',
-                        borderColor:
-                          event.category === category
-                            ? 'transparent'
-                            : 'divider',
-                        fontWeight: event.category === category ? 600 : 500,
-                      }}
-                    />
-                  ),
-                )}
-                {event.category && event.category !== 'uncategorized' ? (
+                {actionCategories.map((category) => (
+                  <Chip
+                    key={category.id}
+                    size="small"
+                    label={category.label}
+                    clickable
+                    onClick={() =>
+                      onUpdate(
+                        moveEvent(
+                          categorizedEvents,
+                          event.id,
+                          category.id,
+                          categories,
+                        ),
+                      )
+                    }
+                    sx={{
+                      bgcolor:
+                        event.category === category.id
+                          ? colors[category.id]
+                          : 'transparent',
+                      border: '1px solid',
+                      borderColor:
+                        event.category === category.id
+                          ? 'transparent'
+                          : 'divider',
+                      fontWeight: event.category === category.id ? 600 : 500,
+                    }}
+                  />
+                ))}
+                {event.category && event.category !== UNCATEGORIZED_ID ? (
                   <Chip
                     size="small"
                     label="Clear"
@@ -160,7 +167,12 @@ export function MobileEventList({
                     variant="outlined"
                     onClick={() =>
                       onUpdate(
-                        moveEvent(categorizedEvents, event.id, 'uncategorized'),
+                        moveEvent(
+                          categorizedEvents,
+                          event.id,
+                          UNCATEGORIZED_ID,
+                          categories,
+                        ),
                       )
                     }
                   />
@@ -171,7 +183,7 @@ export function MobileEventList({
         </Box>
       )}
 
-      {activeCategory === 'uncategorized' && events.length > 0 ? (
+      {activeCategory === UNCATEGORIZED_ID && events.length > 0 ? (
         <Typography
           variant="caption"
           color="text.secondary"

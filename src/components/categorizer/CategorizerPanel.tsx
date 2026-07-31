@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { Box, Button, Collapse, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
+import { UNCATEGORIZED_ID } from '../../lib/categories'
 import type { CategorizedEvents } from '../types'
 import { countEvents } from '../categorizer/utils'
+import { CategoriesSettingsModal } from './CategoriesSettingsModal'
 import { DesktopCategoryBoard } from './DesktopCategoryBoard'
 import { MobileEventList } from './MobileEventList'
 import { ReviewDeck } from './ReviewDeck'
@@ -22,12 +24,13 @@ export default function CategorizerPanel({
 }: Props) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
-  const uncategorizedCount = categorizedEvents.uncategorized.length
+  const uncategorizedCount = categorizedEvents[UNCATEGORIZED_ID]?.length ?? 0
   const total = countEvents(categorizedEvents)
   const needsReview = uncategorizedCount > 0
 
   const [editing, setEditing] = useState(false)
   const [reviewOpen, setReviewOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   return (
     <section
@@ -57,6 +60,14 @@ export default function CategorizerPanel({
               Undo
             </Button>
           ) : null}
+          <Button
+            variant="text"
+            size="small"
+            onClick={() => setSettingsOpen(true)}
+            sx={{ color: 'text.secondary', flexShrink: 0 }}
+          >
+            Categories
+          </Button>
           {needsReview ? (
             <Button
               variant="contained"
@@ -84,7 +95,7 @@ export default function CategorizerPanel({
             <MobileEventList
               categorizedEvents={categorizedEvents}
               onUpdate={onUpdate}
-              focusCategory={needsReview ? 'uncategorized' : undefined}
+              focusCategory={needsReview ? UNCATEGORIZED_ID : undefined}
             />
           ) : (
             <DesktopCategoryBoard
@@ -102,6 +113,11 @@ export default function CategorizerPanel({
         onUpdate={onUpdate}
         canUndo={canUndo}
         onUndo={onUndo}
+      />
+
+      <CategoriesSettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
       />
     </section>
   )

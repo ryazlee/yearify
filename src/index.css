@@ -1073,6 +1073,65 @@ body {
   margin-top: 0.85rem;
 }
 
+.catSettings {
+  border-radius: 16px !important;
+}
+
+.catSettings__card {
+  border-radius: 14px;
+  padding: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--text) 8%, transparent);
+}
+
+.catSettings__cardTop {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.catSettings__color {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.catSettings__color::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+
+.catSettings__color::-webkit-color-swatch {
+  border: none;
+  border-radius: 7px;
+}
+
+.catSettings__keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+  max-height: 120px;
+  overflow: auto;
+}
+
+.catSettings__keywordRow,
+.catSettings__add {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.catSettings__add {
+  margin-top: 0.25rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--border);
+}
+
 /* Share sheet */
 .shareSheet {
   position: absolute;

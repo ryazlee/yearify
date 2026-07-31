@@ -1,11 +1,9 @@
-import type { Category } from '../types'
-
 /**
  * Distinctive calendar terms only. Prefer phrases over short ambiguous words.
  * Longer / more specific phrases score higher in the matcher.
  */
 export const CATEGORIES_KEYWORDS: Record<
-  Exclude<Category, 'uncategorized'>,
+  'travel' | 'fitness' | 'social' | 'personal',
   string[]
 > = {
   travel: [
@@ -105,7 +103,7 @@ export const CATEGORIES_KEYWORDS: Record<
     'orange theory',
     'f45',
     'soulcycle',
-    'barry\'s',
+    "barry's",
     'yoga',
     'pilates',
     'zumba',

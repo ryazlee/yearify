@@ -21,6 +21,10 @@ export async function signOut(): Promise<void> {
   return datastore.signOut()
 }
 
+export async function restoreSession(): Promise<boolean> {
+  return datastore.restoreSession()
+}
+
 export async function listYearEvents(
   year: number = DEFAULT_YEAR,
 ): Promise<CalendarEvent[]> {

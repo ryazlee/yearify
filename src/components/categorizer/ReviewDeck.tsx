@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   Box,
   Button,
@@ -10,17 +10,10 @@ import {
 import { useTheme } from '@mui/material/styles'
 import CloseIcon from '@mui/icons-material/Close'
 import LinkIcon from '@mui/icons-material/Link'
-import {
-  CATEGORY_COLORS,
-  type CategorizedEvents,
-  type Category,
-} from '../types'
-import {
-  ACTION_CATEGORIES,
-  deleteEvent,
-  moveEvent,
-  type ActionCategory,
-} from '../categorizer/utils'
+import { useCategories } from '../../contexts/CategoryContext'
+import { UNCATEGORIZED_ID, type Category } from '../../lib/categories'
+import type { CategorizedEvents } from '../types'
+import { deleteEvent, moveEvent } from '../categorizer/utils'
 
 type Props = {
   isOpen: boolean
@@ -29,13 +22,6 @@ type Props = {
   onUpdate: (next: CategorizedEvents) => void
   canUndo?: boolean
   onUndo?: () => void
-}
-
-const KEY_TO_CATEGORY: Record<string, ActionCategory> = {
-  '1': 'travel',
-  '2': 'fitness',
-  '3': 'social',
-  '4': 'personal',
 }
 
 export function ReviewDeck({
@@ -48,8 +34,17 @@ export function ReviewDeck({
 }: Props) {
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'))
-  const queue = categorizedEvents.uncategorized
+  const { actionCategories, categories, colors } = useCategories()
+  const queue = categorizedEvents[UNCATEGORIZED_ID] ?? []
   const [index, setIndex] = useState(0)
+
+  const keyMap = useMemo(() => {
+    const map: Record<string, Category> = {}
+    actionCategories.slice(0, 9).forEach((category, i) => {
+      map[String(i + 1)] = category.id
+    })
+    return map
+  }, [actionCategories])
 
   useEffect(() => {
     if (!isOpen) return
@@ -67,12 +62,12 @@ export function ReviewDeck({
 
   const handleCategorize = (category: Category) => {
     if (!current) return
-    onUpdate(moveEvent(categorizedEvents, current.id, category))
+    onUpdate(moveEvent(categorizedEvents, current.id, category, categories))
   }
 
   const handleDelete = () => {
     if (!current) return
-    onUpdate(deleteEvent(categorizedEvents, current.id))
+    onUpdate(deleteEvent(categorizedEvents, current.id, categories))
   }
 
   const handleSkip = () => {
@@ -90,7 +85,7 @@ export function ReviewDeck({
       }
       if (!current) return
 
-      const mapped = KEY_TO_CATEGORY[event.key]
+      const mapped = keyMap[event.key]
       if (mapped) {
         event.preventDefault()
         handleCategorize(mapped)
@@ -120,7 +115,12 @@ export function ReviewDeck({
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, current, categorizedEvents, remaining, index, canUndo, onUndo])
+  }, [isOpen, current, categorizedEvents, remaining, index, canUndo, onUndo, keyMap])
+
+  const shortcutHint =
+    actionCategories.length <= 9
+      ? `Keys 1–${Math.min(actionCategories.length, 9)} to file`
+      : 'Keys 1–9 to file first nine'
 
   return (
     <Modal open={isOpen} onClose={onClose}>
@@ -192,22 +192,24 @@ export function ReviewDeck({
             </Box>
 
             <Box className="catReview__categories">
-              {ACTION_CATEGORIES.map((category, i) => (
+              {actionCategories.map((category, i) => (
                 <Button
-                  key={category}
+                  key={category.id}
                   className="catReview__category"
-                  onClick={() => handleCategorize(category)}
+                  onClick={() => handleCategorize(category.id)}
                   sx={{
-                    bgcolor: CATEGORY_COLORS[category],
+                    bgcolor: colors[category.id],
                     color: '#111827',
                     '&:hover': {
-                      bgcolor: CATEGORY_COLORS[category],
+                      bgcolor: colors[category.id],
                       opacity: 0.92,
                     },
                   }}
                 >
-                  <span className="catReview__categoryKey">{i + 1}</span>
-                  <span className="catReview__categoryLabel">{category}</span>
+                  {i < 9 ? (
+                    <span className="catReview__categoryKey">{i + 1}</span>
+                  ) : null}
+                  <span className="catReview__categoryLabel">{category.label}</span>
                 </Button>
               ))}
             </Box>
@@ -234,7 +236,7 @@ export function ReviewDeck({
                 color="text.secondary"
                 sx={{ display: 'block', textAlign: 'center', mt: 1.5 }}
               >
-                Keys 1–4 to file · S skip · ⌘Z undo · Delete remove · Esc close
+                {shortcutHint} · S skip · ⌘Z undo · Delete remove · Esc close
               </Typography>
             ) : null}
           </>

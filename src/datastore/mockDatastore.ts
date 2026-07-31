@@ -102,10 +102,16 @@ function remapToYear(events: CalendarEvent[], year: number): CalendarEvent[] {
 class MockYearifyDatastore implements YearifyDatastore {
   async signIn(): Promise<void> {
     await delay(300)
+    localStorage.setItem('yearify.mockAuth', '1')
   }
 
   async signOut(): Promise<void> {
     await delay(150)
+    localStorage.removeItem('yearify.mockAuth')
+  }
+
+  async restoreSession(): Promise<boolean> {
+    return localStorage.getItem('yearify.mockAuth') === '1'
   }
 
   async listYearEvents(year: number): Promise<CalendarEvent[]> {

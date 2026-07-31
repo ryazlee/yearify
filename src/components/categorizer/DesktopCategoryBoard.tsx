@@ -7,12 +7,8 @@ import {
 } from 'react-beautiful-dnd'
 import { Box, IconButton, Paper, Typography } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
-import {
-  CATEGORY_COLORS,
-  type CalendarEvent,
-  type CategorizedEvents,
-  type Category,
-} from '../types'
+import { useCategories } from '../../contexts/CategoryContext'
+import type { CalendarEvent, CategorizedEvents, Category } from '../types'
 import { deleteEvent, emptyCategorizedEvents } from '../categorizer/utils'
 
 function EventCard({
@@ -82,16 +78,18 @@ type Props = {
 }
 
 export function DesktopCategoryBoard({ categorizedEvents, onUpdate }: Props) {
-  const [categories, setCategories] = useState(categorizedEvents)
+  const { categories, colors } = useCategories()
+  const [board, setBoard] = useState(categorizedEvents)
 
   useEffect(() => {
-    setCategories(categorizedEvents)
+    setBoard(categorizedEvents)
   }, [categorizedEvents])
 
-  const total = Object.values(categories).reduce((sum, list) => sum + list.length, 0)
+  const total = Object.values(board).reduce((sum, list) => sum + list.length, 0)
+  const columnIds = categories.map((c) => c.id)
 
   const commit = (next: CategorizedEvents) => {
-    setCategories(next)
+    setBoard(next)
     onUpdate(next)
   }
 
@@ -105,9 +103,9 @@ export function DesktopCategoryBoard({ categorizedEvents, onUpdate }: Props) {
       return
     }
 
-    const next = emptyCategorizedEvents()
-    ;(Object.keys(categories) as Category[]).forEach((key) => {
-      next[key] = [...categories[key]]
+    const next = emptyCategorizedEvents(categories)
+    columnIds.forEach((key) => {
+      next[key] = [...(board[key] ?? [])]
     })
 
     const sourceKey = source.droppableId as Category
@@ -119,30 +117,35 @@ export function DesktopCategoryBoard({ categorizedEvents, onUpdate }: Props) {
     commit(next)
   }
 
+  const labelFor = (id: string) =>
+    categories.find((c) => c.id === id)?.label ?? id
+
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <Box className="catBoard">
-        {(Object.keys(categories) as Category[]).map((columnId) => (
+        {columnIds.map((columnId) => (
           <Droppable key={columnId} droppableId={columnId}>
             {(provided) => (
               <Box
                 ref={provided.innerRef}
                 {...provided.droppableProps}
                 className="catBoard__column"
-                sx={{ bgcolor: CATEGORY_COLORS[columnId] }}
+                sx={{ bgcolor: colors[columnId] }}
               >
                 <Typography className="catBoard__heading">
-                  {columnId}
+                  {labelFor(columnId)}
                   <span>
-                    {categories[columnId].length}/{total}
+                    {(board[columnId] ?? []).length}/{total}
                   </span>
                 </Typography>
-                {categories[columnId].map((calendarEvent, index) => (
+                {(board[columnId] ?? []).map((calendarEvent, index) => (
                   <EventCard
                     key={calendarEvent.id}
                     calendarEvent={calendarEvent}
                     index={index}
-                    onDelete={(id) => commit(deleteEvent(categories, id))}
+                    onDelete={(id) =>
+                      commit(deleteEvent(board, id, categories))
+                    }
                   />
                 ))}
                 {provided.placeholder}

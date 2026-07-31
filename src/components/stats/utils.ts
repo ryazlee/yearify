@@ -1,4 +1,4 @@
-import type { CalendarEvent, CategorizedEvents, Category } from '../types'
+import type { CalendarEvent, CategorizedEvents } from '../types'
 
 export const getStats = (
   categorizedEvents: CategorizedEvents,
@@ -8,7 +8,7 @@ export const getStats = (
 
   for (const category in categorizedEvents) {
     let categoryDayCount = 0
-    const categoryEvents = categorizedEvents[category as Category]
+    const categoryEvents = categorizedEvents[category] ?? []
 
     for (const event of categoryEvents) {
       const startDateTime = new Date(event.start)

@@ -1,5 +1,5 @@
+import { useCategories } from '../../contexts/CategoryContext'
 import type { CategorizedEvents } from '../types'
-import { CATEGORY_COLORS } from '../types'
 import { DEFAULT_YEAR } from '../../datastore/types'
 import { APP_SITE_URL } from '../../lib/brand'
 import {
@@ -10,13 +10,6 @@ import {
 } from '../../lib/productMode'
 import { getMostEventfulDay, getStats } from '../stats/utils'
 import { MonthGrid, PeriodGrid } from './MonthGrid'
-
-const LEGEND_ITEMS = [
-  { key: 'travel', label: 'Travel' },
-  { key: 'social', label: 'Social' },
-  { key: 'fitness', label: 'Fitness' },
-  { key: 'personal', label: 'Personal' },
-] as const
 
 type Props = {
   mode: ProductMode
@@ -39,6 +32,7 @@ export function SnapshotCalendar({
   showStats = false,
   totalDays = 365,
 }: Props) {
+  const { actionCategories, colors } = useCategories()
   const events = Object.values(categorizedEvents).flat()
   const period = formatPeriodLabel(mode, year, {
     monthIndex,
@@ -63,15 +57,15 @@ export function SnapshotCalendar({
           className="snapCard__legend"
           aria-label={showStats ? 'Category stats' : 'Category legend'}
         >
-          {LEGEND_ITEMS.map((item) => (
-            <span key={item.key} className="snapLegendItem">
+          {actionCategories.map((item) => (
+            <span key={item.id} className="snapLegendItem">
               <span
                 className="snapLegendItem__swatch"
-                style={{ background: CATEGORY_COLORS[item.key] }}
+                style={{ background: colors[item.id] }}
               />
               <span className="snapLegendItem__label">{item.label}</span>
-              {stats?.[item.key] ? (
-                <span className="snapLegendItem__value">{stats[item.key]}</span>
+              {stats?.[item.id] ? (
+                <span className="snapLegendItem__value">{stats[item.id]}</span>
               ) : null}
             </span>
           ))}

@@ -1,4 +1,5 @@
 import type { CalendarEvent } from '../../datastore/types'
+import { useCategories } from '../../contexts/CategoryContext'
 import { dayBackground, dayColors, eventsForDay } from '../../lib/calendarDays'
 import {
   daysInMonth,
@@ -16,6 +17,8 @@ type DayCellProps = {
   events: CalendarEvent[]
   size: 'sm' | 'lg'
   showNumber?: boolean
+  colorById: Record<string, string>
+  categoryOrder: string[]
 }
 
 function DayCell({
@@ -25,13 +28,15 @@ function DayCell({
   events,
   size,
   showNumber = true,
+  colorById,
+  categoryOrder,
 }: DayCellProps) {
   if (dayNum == null) {
     return <div className={`snapDay snapDay--empty snapDay--${size}`} />
   }
 
   const dayEvents = eventsForDay(events, year, monthIndex, dayNum)
-  const colors = dayColors(dayEvents)
+  const colors = dayColors(dayEvents, colorById, categoryOrder)
   const hasFill = colors.length > 0
 
   return (
@@ -52,7 +57,9 @@ function DayCell({
       {hasFill ? (
         <span
           className="snapDay__fill"
-          style={{ background: dayBackground(dayEvents) }}
+          style={{
+            background: dayBackground(dayEvents, colorById, categoryOrder),
+          }}
           aria-hidden
         />
       ) : null}
@@ -78,6 +85,8 @@ export function MonthGrid({
   showWeekdays = false,
   showMonthLabel = false,
 }: MonthGridProps) {
+  const { colors, actionCategories } = useCategories()
+  const categoryOrder = actionCategories.map((c) => c.id)
   const days = daysInMonth(year, monthIndex)
   const startDay = startDayOfMonth(year, monthIndex)
   const cells: Array<number | null> = [
@@ -109,6 +118,8 @@ export function MonthGrid({
             events={events}
             size={size}
             showNumber={size === 'lg'}
+            colorById={colors}
+            categoryOrder={categoryOrder}
           />
         ))}
       </div>
@@ -128,6 +139,9 @@ export function PeriodGrid({
   columns: DayRef[][]
   density?: 'default' | 'comfortable' | 'wide'
 }) {
+  const { colors, actionCategories } = useCategories()
+  const categoryOrder = actionCategories.map((c) => c.id)
+
   return (
     <div
       className={`snapYearColumns${
@@ -163,6 +177,8 @@ export function PeriodGrid({
                   events={events}
                   size="sm"
                   showNumber
+                  colorById={colors}
+                  categoryOrder={categoryOrder}
                 />
               ) : (
                 <div

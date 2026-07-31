@@ -9,6 +9,7 @@ import {
 } from 'react-router-dom'
 import MuiAppProvider from './components/MuiAppProvider'
 import { AuthProvider } from './contexts/AuthContext'
+import { CategoryProvider } from './contexts/CategoryContext'
 import { trackPageview } from './lib/analytics'
 import { queryClient } from './lib/queryClient'
 import SnapshotPage from './pages/SnapshotPage'
@@ -31,25 +32,27 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <MuiAppProvider>
         <AuthProvider>
-          <BrowserRouter basename={basename || undefined}>
-            <RouteAnalytics />
-            <Routes>
-              <Route path="/" element={<SnapshotPage mode="yearify" />} />
-              <Route
-                path="/halfify"
-                element={<SnapshotPage mode="halfify" />}
-              />
-              <Route
-                path="/quarterify"
-                element={<SnapshotPage mode="quarterify" />}
-              />
-              <Route
-                path="/monthify"
-                element={<SnapshotPage mode="monthify" />}
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </BrowserRouter>
+          <CategoryProvider>
+            <BrowserRouter basename={basename || undefined}>
+              <RouteAnalytics />
+              <Routes>
+                <Route path="/" element={<SnapshotPage mode="yearify" />} />
+                <Route
+                  path="/halfify"
+                  element={<SnapshotPage mode="halfify" />}
+                />
+                <Route
+                  path="/quarterify"
+                  element={<SnapshotPage mode="quarterify" />}
+                />
+                <Route
+                  path="/monthify"
+                  element={<SnapshotPage mode="monthify" />}
+                />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </BrowserRouter>
+          </CategoryProvider>
         </AuthProvider>
       </MuiAppProvider>
     </QueryClientProvider>

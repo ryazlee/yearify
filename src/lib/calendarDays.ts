@@ -1,12 +1,28 @@
 import type { CalendarEvent } from '../datastore/types'
-import { CATEGORY_COLORS, type Category } from '../components/types'
+import { UNCATEGORIZED_ID } from './categories'
 
-const FILL_CATEGORY_ORDER: Category[] = [
-  'travel',
-  'social',
-  'fitness',
-  'personal',
-]
+/** Unique categorized colors for a day, in definition order. */
+export function dayColors(
+  events: CalendarEvent[],
+  colorById: Record<string, string>,
+  order: string[],
+): string[] {
+  const present = new Set(
+    events
+      .map((event) => event.category)
+      .filter((category): category is string => {
+        if (!category || category === UNCATEGORIZED_ID) return false
+        return Boolean(colorById[category])
+      }),
+  )
+
+  const ordered = order.filter((category) => present.has(category))
+  const extras = Array.from(present).filter(
+    (category) => !ordered.includes(category),
+  )
+
+  return [...ordered, ...extras].map((category) => colorById[category])
+}
 
 export function adjustAllDayEnd(start: string, end: string): Date {
   const startDate = new Date(start)
@@ -37,27 +53,13 @@ export function eventsForDay(
   })
 }
 
-/** Unique categorized colors for a day, in stable category order. */
-export function dayColors(events: CalendarEvent[]): string[] {
-  const present = new Set(
-    events
-      .map((event) => event.category)
-      .filter((category): category is Category => {
-        if (!category || category === 'uncategorized') return false
-        return Boolean(CATEGORY_COLORS[category])
-      }),
-  )
-
-  return FILL_CATEGORY_ORDER.filter((category) => present.has(category)).map(
-    (category) => CATEGORY_COLORS[category],
-  )
-}
-
 export function dayBackground(
   events: CalendarEvent[],
+  colorById: Record<string, string>,
+  order: string[],
   emptyFill = '#fff',
 ): string {
-  const colors = dayColors(events)
+  const colors = dayColors(events, colorById, order)
   if (colors.length === 0) return emptyFill
   if (colors.length === 1) return colors[0]
 
@@ -65,7 +67,6 @@ export function dayBackground(
     return `linear-gradient(135deg, ${colors[0]} 49.5%, ${colors[1]} 50.5%)`
   }
 
-  // 3–4 categories: equal vertical bands
   const step = 100 / colors.length
   const stops = colors
     .map((color, index) => {

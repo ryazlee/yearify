@@ -8,7 +8,12 @@ import {
 } from '@mui/material'
 import { useSearchParams } from 'react-router-dom'
 import type { CategorizedEvents } from '../components/types'
-import { categorizeEvents } from '../components/categorizer/utils'
+import {
+  categorizeEvents,
+  emptyCategorizedEvents,
+  reshapeCategorizedEvents,
+  suggestCategory,
+} from '../components/categorizer/utils'
 import CategorizerPanel from '../components/categorizer/CategorizerPanel'
 import DownloadableComponent from '../components/downloadableImage/DownloadableComponent'
 import { SnapshotCalendar } from '../components/calendar/CalendarGrid'
@@ -16,6 +21,8 @@ import AppHeader from '../components/AppHeader'
 import AppFooter from '../components/AppFooter'
 import LandingPage from '../components/LandingPage'
 import { useAuth } from '../contexts/AuthContext'
+import { useCategories } from '../contexts/CategoryContext'
+import { UNCATEGORIZED_ID } from '../lib/categories'
 import { useMonthRangeEvents, useYearEvents } from '../hooks/useCalendar'
 import { isMockDatastore } from '../services/calendarService'
 import {
@@ -42,7 +49,8 @@ type Props = {
 
 export default function SnapshotPage({ mode }: Props) {
   const config = PRODUCT_MODES[mode]
-  const { authenticated } = useAuth()
+  const { authenticated, authReady } = useAuth()
+  const { categories } = useCategories()
   const [searchParams, setSearchParams] = useSearchParams()
   const year = parseYearParam(searchParams.get('year')) ?? DEFAULT_YEAR
   const [monthIndex, setMonthIndex] = useState(() => new Date().getMonth())
@@ -116,8 +124,13 @@ export default function SnapshotPage({ mode }: Props) {
     historyRef.current = []
     setCanUndo(false)
     setCategorizedEvents(
-      categorizeEvents(events.map((event) => ({ ...event }))),
+      categorizeEvents(
+        events.map((event) => ({ ...event })),
+        categories,
+      ),
     )
+    // Keyword edits apply on the next period/load so manual filings stay intact.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     authenticated,
     events,
@@ -129,6 +142,26 @@ export default function SnapshotPage({ mode }: Props) {
     halfIndex,
     year,
   ])
+
+  useEffect(() => {
+    setCategorizedEvents((current) => {
+      if (!current) return current
+      const reshaped = reshapeCategorizedEvents(current, categories)
+      const next = emptyCategorizedEvents(categories)
+
+      Object.entries(reshaped).forEach(([id, list]) => {
+        if (id === UNCATEGORIZED_ID) return
+        next[id] = list.map((event) => ({ ...event }))
+      })
+
+      ;(reshaped[UNCATEGORIZED_ID] ?? []).forEach((event) => {
+        const category = suggestCategory(event, categories)
+        next[category].push({ ...event, category })
+      })
+
+      return next
+    })
+  }, [categories])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -158,6 +191,22 @@ export default function SnapshotPage({ mode }: Props) {
       : mode === 'yearify'
         ? daysInYear(year)
         : daysInMonths(year, rangeMonths)
+
+  if (!authReady) {
+    return (
+      <div className="appShell appShell--landing">
+        <AppHeader year={year} />
+        <main className="appMain">
+          <div className="shellInner">
+            <div className="loadingState">
+              <Typography color="text.secondary">Restoring session…</Typography>
+            </div>
+          </div>
+        </main>
+        <AppFooter />
+      </div>
+    )
+  }
 
   return (
     <div className={`appShell${authenticated ? '' : ' appShell--landing'}`}>
