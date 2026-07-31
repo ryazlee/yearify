@@ -59,6 +59,7 @@ export default function DownloadableComponent({
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [fit, setFit] = useState({ scale: 1, width: 0, height: 0 })
+  const touchStartY = useRef<number | null>(null)
 
   const fileName = () =>
     `${filePrefix}${transparentBg ? '-transparent' : ''}-${new Date().toISOString()}.png`
@@ -330,8 +331,30 @@ export default function DownloadableComponent({
           aria-modal="true"
           aria-label="Share options"
         >
+          {isMobile ? (
+            <button
+              type="button"
+              className="shareSheet__handle"
+              aria-label="Close share sheet"
+              disabled={Boolean(busy)}
+              onClick={() => !busy && setOpen(false)}
+              onTouchStart={(e) => {
+                touchStartY.current = e.touches[0]?.clientY ?? null
+              }}
+              onTouchEnd={(e) => {
+                const start = touchStartY.current
+                touchStartY.current = null
+                if (start == null || busy) return
+                const dy = (e.changedTouches[0]?.clientY ?? start) - start
+                if (dy > 48) setOpen(false)
+              }}
+            >
+              <span className="shareSheet__handleBar" aria-hidden />
+            </button>
+          ) : null}
+
           <Box className="shareSheet__top">
-            <Box>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
               <Typography
                 sx={{
                   fontWeight: 700,
@@ -346,12 +369,13 @@ export default function DownloadableComponent({
               </Typography>
             </Box>
             <IconButton
-              size="small"
+              className="shareSheet__close"
+              size="medium"
               onClick={() => setOpen(false)}
               disabled={Boolean(busy)}
               aria-label="Close"
             >
-              <CloseIcon fontSize="small" />
+              <CloseIcon />
             </IconButton>
           </Box>
 
@@ -427,6 +451,20 @@ export default function DownloadableComponent({
               </button>
             ))}
           </Box>
+
+          {isMobile ? (
+            <Button
+              className="shareSheet__done"
+              variant="contained"
+              fullWidth
+              size="large"
+              disabled={Boolean(busy)}
+              onClick={() => setOpen(false)}
+              sx={{ mt: 1.25, minHeight: 48 }}
+            >
+              Done
+            </Button>
+          ) : null}
         </Box>
       </Modal>
     </div>
