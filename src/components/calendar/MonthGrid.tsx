@@ -1,6 +1,12 @@
 import type { CalendarEvent } from '../../datastore/types'
 import { useCategories } from '../../contexts/CategoryContext'
-import { dayBackground, dayColors, eventsForDay } from '../../lib/calendarDays'
+import { useDayFillStyle } from '../../contexts/DayFillStyleContext'
+import {
+  dayBackground,
+  dayColors,
+  eventsForDay,
+  type DayFillStyle,
+} from '../../lib/calendarDays'
 import {
   daysInMonth,
   MONTH_NAMES,
@@ -19,6 +25,7 @@ type DayCellProps = {
   showNumber?: boolean
   colorById: Record<string, string>
   categoryOrder: string[]
+  fillStyle: DayFillStyle
 }
 
 function DayCell({
@@ -30,6 +37,7 @@ function DayCell({
   showNumber = true,
   colorById,
   categoryOrder,
+  fillStyle,
 }: DayCellProps) {
   if (dayNum == null) {
     return <div className={`snapDay snapDay--empty snapDay--${size}`} />
@@ -58,7 +66,12 @@ function DayCell({
         <span
           className="snapDay__fill"
           style={{
-            background: dayBackground(dayEvents, colorById, categoryOrder),
+            background: dayBackground(
+              dayEvents,
+              colorById,
+              categoryOrder,
+              fillStyle,
+            ),
           }}
           aria-hidden
         />
@@ -86,6 +99,7 @@ export function MonthGrid({
   showMonthLabel = false,
 }: MonthGridProps) {
   const { colors, actionCategories } = useCategories()
+  const { fillStyle } = useDayFillStyle()
   const categoryOrder = actionCategories.map((c) => c.id)
   const days = daysInMonth(year, monthIndex)
   const startDay = startDayOfMonth(year, monthIndex)
@@ -120,6 +134,7 @@ export function MonthGrid({
             showNumber={size === 'lg'}
             colorById={colors}
             categoryOrder={categoryOrder}
+            fillStyle={fillStyle}
           />
         ))}
       </div>
@@ -140,6 +155,7 @@ export function PeriodGrid({
   density?: 'default' | 'comfortable' | 'wide'
 }) {
   const { colors, actionCategories } = useCategories()
+  const { fillStyle } = useDayFillStyle()
   const categoryOrder = actionCategories.map((c) => c.id)
 
   return (
@@ -179,6 +195,7 @@ export function PeriodGrid({
                   showNumber
                   colorById={colors}
                   categoryOrder={categoryOrder}
+                  fillStyle={fillStyle}
                 />
               ) : (
                 <div

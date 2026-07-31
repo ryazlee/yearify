@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
+  Box,
   FormControlLabel,
   MenuItem,
   Switch,
@@ -25,6 +26,8 @@ import AppFooter from '../components/AppFooter'
 import LandingPage from '../components/LandingPage'
 import { useAuth } from '../contexts/AuthContext'
 import { useCategories } from '../contexts/CategoryContext'
+import { useDayFillStyle } from '../contexts/DayFillStyleContext'
+import { DAY_FILL_STYLE_OPTIONS, type DayFillStyle } from '../lib/calendarDays'
 import { UNCATEGORIZED_ID } from '../lib/categories'
 import { useMonthRangeEvents, useYearEvents } from '../hooks/useCalendar'
 import { isMockDatastore } from '../services/calendarService'
@@ -54,6 +57,7 @@ export default function SnapshotPage({ mode }: Props) {
   const config = PRODUCT_MODES[mode]
   const { authenticated, authReady } = useAuth()
   const { categories } = useCategories()
+  const { fillStyle, setFillStyle } = useDayFillStyle()
   const [searchParams, setSearchParams] = useSearchParams()
   const year = parseYearParam(searchParams.get('year')) ?? DEFAULT_YEAR
   const [monthIndex, setMonthIndex] = useState(() => new Date().getMonth())
@@ -312,19 +316,45 @@ export default function SnapshotPage({ mode }: Props) {
                     <DownloadableComponent
                       filePrefix={config.id}
                       controls={
-                        <FormControlLabel
-                          control={
-                            <Switch
-                              checked={showStats}
-                              onChange={() => setShowStats(!showStats)}
-                              name="showStats"
-                              color="primary"
-                              size="small"
-                            />
-                          }
-                          label="Include stats"
-                          sx={{ m: 0, mr: 'auto' }}
-                        />
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 1.25,
+                            flexWrap: 'wrap',
+                            mr: 'auto',
+                          }}
+                        >
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={showStats}
+                                onChange={() => setShowStats(!showStats)}
+                                name="showStats"
+                                color="primary"
+                                size="small"
+                              />
+                            }
+                            label="Include stats"
+                            sx={{ m: 0 }}
+                          />
+                          <TextField
+                            select
+                            size="small"
+                            label="Day fill"
+                            value={fillStyle}
+                            onChange={(e) =>
+                              setFillStyle(e.target.value as DayFillStyle)
+                            }
+                            sx={{ minWidth: 132 }}
+                          >
+                            {DAY_FILL_STYLE_OPTIONS.map((option) => (
+                              <MenuItem key={option.id} value={option.id}>
+                                {option.label}
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                        </Box>
                       }
                     >
                       <SnapshotCalendar
