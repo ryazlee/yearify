@@ -103,6 +103,27 @@ function bandStops(colors: string[]): string {
     .join(', ')
 }
 
+/** Polar point for pie slices; 0° is 12 o'clock. */
+function polar(cx: number, cy: number, r: number, angleDeg: number): [number, number] {
+  const rad = ((angleDeg - 90) * Math.PI) / 180
+  return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)]
+}
+
+/** SVG path for one equal pie slice (viewBox 0 0 100 100). */
+export function pieSlicePath(index: number, total: number): string {
+  if (total <= 0) return ''
+  if (total === 1) {
+    return 'M 50 0 A 50 50 0 1 1 49.999 0 Z'
+  }
+
+  const startAngle = (index / total) * 360
+  const endAngle = ((index + 1) / total) * 360
+  const [x1, y1] = polar(50, 50, 50, startAngle)
+  const [x2, y2] = polar(50, 50, 50, endAngle)
+  const largeArc = endAngle - startAngle > 180 ? 1 : 0
+  return `M 50 50 L ${x1} ${y1} A 50 50 0 ${largeArc} 1 ${x2} ${y2} Z`
+}
+
 /** Grid of equal squares (2→1×2, 3–4→2×2, 5–9→3×3, …). */
 function squaresBackground(colors: string[], emptyFill: string): string {
   const n = colors.length
@@ -124,6 +145,10 @@ function squaresBackground(colors: string[], emptyFill: string): string {
   return layers.join(', ')
 }
 
+/**
+ * CSS background for non-pie fills.
+ * Pie uses inline SVG (html2canvas does not paint conic-gradient).
+ */
 export function dayBackground(
   events: CalendarEvent[],
   colorById: Record<string, string>,
@@ -144,6 +169,7 @@ export function dayBackground(
       return squaresBackground(colors, emptyFill)
     case 'pie':
     default:
+      // Fallback only — prefer SVG pie slices in the DOM for export.
       return `conic-gradient(from -90deg, ${bandStops(colors)})`
   }
 }

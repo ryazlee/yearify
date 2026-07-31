@@ -5,6 +5,7 @@ import {
   dayBackground,
   dayColors,
   eventsForDay,
+  pieSlicePath,
   type DayFillStyle,
 } from '../../lib/calendarDays'
 import {
@@ -15,6 +16,56 @@ import {
 } from '../../lib/productMode'
 
 const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+
+function DayFill({
+  colors,
+  fillStyle,
+  dayEvents,
+  colorById,
+  categoryOrder,
+}: {
+  colors: string[]
+  fillStyle: DayFillStyle
+  dayEvents: CalendarEvent[]
+  colorById: Record<string, string>
+  categoryOrder: string[]
+}) {
+  // Inline SVG pies survive html2canvas; CSS conic-gradient does not.
+  if (fillStyle === 'pie' && colors.length > 1) {
+    return (
+      <span className="snapDay__fill" aria-hidden>
+        <svg
+          className="snapDay__pie"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          {colors.map((color, index) => (
+            <path
+              key={`${color}-${index}`}
+              d={pieSlicePath(index, colors.length)}
+              fill={color}
+            />
+          ))}
+        </svg>
+      </span>
+    )
+  }
+
+  return (
+    <span
+      className="snapDay__fill"
+      style={{
+        background: dayBackground(
+          dayEvents,
+          colorById,
+          categoryOrder,
+          fillStyle,
+        ),
+      }}
+      aria-hidden
+    />
+  )
+}
 
 type DayCellProps = {
   year: number
@@ -63,17 +114,12 @@ function DayCell({
       }
     >
       {hasFill ? (
-        <span
-          className="snapDay__fill"
-          style={{
-            background: dayBackground(
-              dayEvents,
-              colorById,
-              categoryOrder,
-              fillStyle,
-            ),
-          }}
-          aria-hidden
+        <DayFill
+          colors={colors}
+          fillStyle={fillStyle}
+          dayEvents={dayEvents}
+          colorById={colorById}
+          categoryOrder={categoryOrder}
         />
       ) : null}
       {showNumber ? <span className="snapDay__num">{dayNum}</span> : null}
