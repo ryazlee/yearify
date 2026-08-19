@@ -7,6 +7,8 @@
   --border: #e5e7eb;
   --border-light: #f3f4f6;
   --accent: #111827;
+  --accent-contrast: #ffffff;
+  --link: #2563eb;
   --radius: 12px;
   --content-max: 720px;
   --header-height: 56px;
@@ -272,6 +274,32 @@ body {
   font-size: 0.75rem;
   color: var(--text-muted);
   line-height: 1.5;
+}
+
+.maker {
+  margin: 0.65rem 0 0;
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.appFooter .maker,
+.appFooter .maker a {
+  font-size: 0.8125rem;
+  font-style: italic;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.maker a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.maker a:hover,
+.appFooter .maker a:hover {
+  color: var(--text-secondary);
+  text-decoration: none;
 }
 
 /* Landing */
