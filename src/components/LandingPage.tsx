@@ -1,5 +1,6 @@
 import { PRODUCT_MODES, type ProductMode } from '../lib/productMode'
 import { AuthButton } from './auth/AuthButton'
+import MakerCredit from './MakerCredit'
 
 type Props = {
   mode: ProductMode
@@ -12,6 +13,7 @@ export default function LandingPage({ mode }: Props) {
     <section className="landing">
       <h1 className="landing__brand">{config.name}</h1>
       <p className="landing__headline">{config.tagline}</p>
+      <MakerCredit />
       <p className="landing__lead">{config.description}</p>
       <div className="landing__cta">
         <AuthButton fullWidth />

@@ -1,5 +1,4 @@
 import { Link } from '@mui/material'
-import MakerCredit from './MakerCredit'
 import { APP_EMAIL, APP_FEEDBACK_URL } from '../lib/brand'
 
 const publicUrl = process.env.PUBLIC_URL || ''
@@ -34,7 +33,6 @@ export default function AppFooter() {
             Feedback form
           </Link>
         </p>
-        <MakerCredit />
       </div>
     </footer>
   )
